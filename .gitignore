@@ -3,6 +3,9 @@ dist/
 # generated types
 .astro/
 
+# wrangler deploy config (auto-generated)
+.wrangler/
+
 # dependencies
 node_modules/
 
