@@ -1,6 +1,5 @@
 // @ts-check
 
-import cloudflare from '@astrojs/cloudflare';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
@@ -26,11 +25,6 @@ import { SITE_URL } from './src/consts';
 // https://astro.build/config
 export default defineConfig({
 	site: SITE_URL,
-	output: 'static',
-	adapter: cloudflare({
-		imageService: 'passthrough',
-		prerenderEnvironment: 'node',
-	}),
 	integrations: [
 		expressiveCode({
 			themes: ['github-dark', 'github-light'],
