@@ -10,6 +10,9 @@ export const ui = {
 		'nav.home': 'Inicio',
 		'nav.blog': 'Blog',
 		'nav.docs': 'Docs',
+		'nav.tags': 'Etiquetas',
+		'nav.categories': 'Categorías',
+		'nav.archive': 'Archivo',
 		'nav.about': 'Sobre mí',
 		
 		'toc.title': 'Tabla de contenidos',
@@ -54,6 +57,9 @@ export const ui = {
 		'nav.home': 'Home',
 		'nav.blog': 'Blog',
 		'nav.docs': 'Docs',
+		'nav.tags': 'Tags',
+		'nav.categories': 'Categories',
+		'nav.archive': 'Archive',
 		'nav.about': 'About',
 		
 		'toc.title': 'Table of contents',

@@ -66,6 +66,7 @@ fi
 EXCLUDES=(
 	"--exclude=node_modules/"
 	"--exclude=.git/"
+	"--exclude=.wrangler/"
 	"--exclude=dist/"
 	"--exclude=.astro/"
 	"--exclude=package-lock.json"
