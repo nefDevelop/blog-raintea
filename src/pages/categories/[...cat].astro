@@ -1,0 +1,73 @@
+---
+import { getCollection } from 'astro:content';
+import FormattedDate from '../../components/FormattedDate.astro';
+import Layout from '../../layouts/Layout.astro';
+import Pagination from '../../components/Pagination.astro';
+import { CATEGORY_DESCRIPTIONS } from '../../consts';
+
+export async function getStaticPaths() {
+	const PAGE_SIZE = 6;
+	const posts = await getCollection('blog');
+	const categories = [...new Set(posts.flatMap((p) => p.data.categories))];
+	const paths: {
+		params: { cat: string | string[] };
+		props: { catName: string; posts: any[]; currentPage: number; lastPage: number; total: number };
+	}[] = [];
+
+	for (const cat of categories) {
+		const filtered = posts
+			.filter((p) => p.data.categories.includes(cat))
+			.sort((a, b) => b.data.published.valueOf() - a.data.published.valueOf())
+			.map((post) => {
+				const words = (post.body || '').split(/\s+/g).filter(Boolean).length;
+				const readingTime = `${Math.max(1, Math.ceil(words / 200))} min read`;
+				return { ...post, readingTime };
+			});
+
+		const lastPage = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+		for (let page = 1; page <= lastPage; page++) {
+			const start = (page - 1) * PAGE_SIZE;
+			paths.push({
+				params: { cat: page === 1 ? cat : [cat, String(page)] },
+				props: {
+					catName: cat,
+					posts: filtered.slice(start, start + PAGE_SIZE),
+					currentPage: page,
+					lastPage,
+					total: filtered.length,
+				},
+			});
+		}
+	}
+	return paths;
+}
+
+const { catName, posts, currentPage, lastPage, total } = Astro.props;
+---
+
+<Layout title={catName} description={`Posts in category: ${catName}`}>
+	<section class="mx-auto max-w-3xl px-4 py-12">
+		<div class="mb-8">
+			<h1 class="text-3xl font-bold capitalize">{catName}</h1>
+			{CATEGORY_DESCRIPTIONS[catName] && <p class="mt-1 text-sm text-[var(--text-muted)]">{CATEGORY_DESCRIPTIONS[catName]}</p>}
+			<p class="text-[var(--text-muted)]">{total} post(s)</p>
+		</div>
+
+		<div class="space-y-6">
+			{posts.map((post) => (
+				<article class="rounded-xl border border-[var(--border-light)] bg-[var(--card-bg)] p-5">
+					<a href={`/blog/${post.id}/`} class="no-underline">
+						<h2 class="text-lg font-semibold text-[var(--text-main)] hover:text-[var(--primary)]">{post.data.title}</h2>
+					</a>
+					<p class="mt-1 text-sm text-[var(--text-muted)]">{post.data.description}</p>
+					<div class="mt-2 flex gap-2 text-xs text-[var(--text-muted)]">
+						<FormattedDate date={post.data.published} />
+						<span>{post.readingTime}</span>
+					</div>
+				</article>
+			))}
+		</div>
+
+		<Pagination currentPage={currentPage} lastPage={lastPage} baseUrl={`/categories/${catName}/`} />
+	</section>
+</Layout>

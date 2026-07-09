@@ -1,0 +1,48 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+function getHierarchicalTags(tags: string[]): string[] {
+	const expanded = new Set<string>();
+	tags.forEach((tag) => {
+		const parts = tag.split('/');
+		let current = '';
+		parts.forEach((part, index) => {
+			current = index === 0 ? part : `${current}/${part}`;
+			expanded.add(current);
+		});
+	});
+	return Array.from(expanded);
+}
+
+const posts = await getCollection('blog');
+const allTags = posts.flatMap((p) => getHierarchicalTags(p.data.tags || []));
+const tags = [...new Set(allTags)].sort();
+---
+
+<Layout title="Tags" description="All tags">
+	<section class="mx-auto max-w-3xl px-4 py-12">
+		<h1 class="mb-2 text-3xl font-bold">Tags</h1>
+		<p class="mb-8 text-[var(--text-muted)]">Browse posts by tag.</p>
+
+		<div class="flex flex-wrap gap-3">
+			{
+				tags.map((tag) => {
+					const count = posts.filter((p) => 
+						(p.data.tags || []).some((t) => t === tag || t.startsWith(tag + '/'))
+					).length;
+					return (
+						<a
+							href={`/tags/${tag}/`}
+							class="flex items-center rounded border border-[var(--border-light)] bg-[var(--card-bg)] px-3 py-1.5 text-sm font-medium text-[var(--text-muted)] no-underline transition-colors hover:border-[var(--tertiary)] hover:text-[var(--tertiary)]"
+						>
+							<span class="mr-1 opacity-50">#</span>
+							{tag}
+							<span class="ml-2 rounded bg-[var(--border-light)] px-1.5 py-0.5 text-[10px] font-bold opacity-80">{count}</span>
+						</a>
+					);
+				})
+			}
+		</div>
+	</section>
+</Layout>

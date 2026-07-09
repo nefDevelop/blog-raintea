@@ -1,0 +1,42 @@
+---
+interface Props {
+	currentPage: number;
+	lastPage: number;
+	baseUrl: string;
+}
+
+const { currentPage, lastPage, baseUrl } = Astro.props;
+---
+
+{lastPage > 1 && (
+	<nav class="mt-10 flex items-center justify-center gap-2">
+		{currentPage > 1 && (
+			<a
+				href={currentPage === 2 ? baseUrl : `${baseUrl}${currentPage - 1}/`}
+				class="rounded-lg border border-[var(--border-light)] px-4 py-2 text-sm text-[var(--text-muted)] no-underline hover:border-[var(--primary)] hover:text-[var(--primary)]"
+			>
+				&larr; Previous
+			</a>
+		)}
+		{Array.from({ length: lastPage }, (_, i) => (
+			<a
+				href={i === 0 ? baseUrl : `${baseUrl}${i + 1}/`}
+				class={`rounded-lg border px-3 py-2 text-sm no-underline ${
+					i + 1 === currentPage
+						? 'border-[var(--primary)] bg-[var(--primary)] text-white'
+						: 'border-[var(--border-light)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)]'
+				}`}
+			>
+				{i + 1}
+			</a>
+		))}
+		{currentPage < lastPage && (
+			<a
+				href={`${baseUrl}${currentPage + 1}/`}
+				class="rounded-lg border border-[var(--border-light)] px-4 py-2 text-sm text-[var(--text-muted)] no-underline hover:border-[var(--primary)] hover:text-[var(--primary)]"
+			>
+				Next &rarr;
+			</a>
+		)}
+	</nav>
+)}

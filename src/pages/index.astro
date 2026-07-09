@@ -1,0 +1,171 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import PostCard from '../components/PostCard.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const [rawPosts, docPages] = await Promise.all([
+	getCollection('blog'),
+	getCollection('docs'),
+]);
+
+const posts = rawPosts
+	.filter((p) => !p.data.draft)
+	.sort((a, b) => {
+		if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
+		return b.data.published.valueOf() - a.data.published.valueOf();
+	})
+	.map((post) => {
+		const words = (post.body || '').split(/\s+/g).filter(Boolean).length;
+		const readingTime = `${Math.max(1, Math.ceil(words / 200))} min read`;
+		return { ...post, readingTime };
+	});
+
+const hasBlog = posts.length > 0;
+const hasDocs = docPages.length > 0;
+
+const featuredPost = posts.length > 0 ? posts[0] : null;
+const remainingPosts = posts.slice(1, 7);
+---
+
+<Layout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+	<div class="relative overflow-hidden border-b border-[var(--border-light)] bg-[var(--card-bg)]/30">
+		<!-- Subtle background glow -->
+		<div class="absolute -left-24 -top-24 -z-10 h-96 w-96 rounded-full bg-[var(--primary)]/15 blur-[120px]"></div>
+		<div class="absolute right-0 top-12 -z-10 h-80 w-80 rounded-full bg-[var(--secondary)]/15 blur-[100px]"></div>
+
+		<!-- Hero Section -->
+		<section class="mx-auto max-w-5xl px-4 py-20 sm:py-32">
+			<div class="flex flex-col items-center text-center">
+				<a href="/about" class="group mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--primary-20)] bg-[var(--primary-10)] px-4 py-1.5 text-sm font-medium text-[var(--primary)] no-underline transition-colors hover:bg-[var(--primary)] hover:text-white">
+					<span class="relative flex h-2 w-2">
+						<span class="absolute inline-flex size-full animate-ping rounded-full bg-[var(--primary)] opacity-75 group-hover:bg-white"></span>
+						<span class="relative inline-flex size-2 rounded-full bg-[var(--primary)] group-hover:bg-white"></span>
+					</span>
+					{t('index.welcome')} {SITE_TITLE}
+				</a>
+				<h1 class="mb-6 max-w-4xl text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl">
+					<span class="bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
+						{SITE_TITLE}
+					</span>
+				</h1>
+				<p class="mb-10 max-w-2xl text-lg leading-relaxed text-[var(--text-muted)] sm:text-xl">
+					{SITE_DESCRIPTION}
+				</p>
+				<div class="flex flex-wrap items-center justify-center gap-4">
+					{hasBlog && (
+						<a href="/blog" class="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 font-semibold text-white no-underline transition-transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[var(--primary)]/25">
+							{t('action.readBlog')}
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+						</a>
+					)}
+					{hasDocs && (
+						<a href="/docs" class="inline-flex items-center gap-2 rounded-lg border border-[var(--border-light)] bg-[var(--card-bg)] px-6 py-3 font-semibold text-[var(--text-main)] no-underline transition-all hover:border-[var(--primary)] hover:text-[var(--primary)] hover:shadow-sm">
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+							{t('action.docs')}
+						</a>
+					)}
+				</div>
+			</div>
+		</section>
+	</div>
+
+	<section class="mx-auto max-w-5xl px-4 py-20">
+		{posts.length === 0 && (
+			<p class="py-12 text-center text-[var(--text-muted)]">{t('index.empty')}</p>
+		)}
+
+		<!-- Featured Post -->
+		{featuredPost && (
+			<div class="mb-20">
+				<h2 class="mb-6 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--primary)]"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+					{t('index.featured')}
+				</h2>
+				<a href={`/blog/${featuredPost.id}/`} class="group block overflow-hidden rounded-2xl border border-[var(--border-light)] bg-[var(--card-bg)] no-underline transition-all duration-300 hover:-translate-y-1 hover:border-[var(--primary-20)] hover:shadow-xl hover:shadow-[var(--primary)]/5 sm:flex">
+					{featuredPost.data.image ? (
+						<div class="relative w-full overflow-hidden sm:w-1/2 lg:w-3/5">
+							<img src={featuredPost.data.image} alt="" class="aspect-video size-full object-cover transition-transform duration-700 group-hover:scale-105" loading="eager" />
+							<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+						</div>
+					) : (
+						<div class="flex aspect-video w-full items-center justify-center bg-gradient-to-br from-[var(--primary-80)] to-[var(--primary-95)] transition-transform duration-700 ease-out group-hover:scale-105 sm:w-1/2 lg:w-3/5">
+							<span class="select-none text-9xl font-black text-[var(--primary-30)] opacity-40 transition-transform duration-700 ease-out group-hover:scale-110">
+								{featuredPost.data.title[0]?.toUpperCase()}
+							</span>
+						</div>
+					)}
+					<div class="flex flex-col justify-center p-6 sm:w-1/2 sm:p-8 lg:w-2/5">
+						<div class="mb-4 flex flex-wrap items-center gap-2">
+							{featuredPost.data.categories?.length > 0 && (
+								<span class="rounded bg-[var(--primary-10)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-[var(--primary)]">
+									{featuredPost.data.categories[0]}
+								</span>
+							)}
+							{featuredPost.data.difficulty && (
+								<span class="flex items-center gap-1 rounded border border-[var(--secondary)] bg-[var(--secondary-10)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-[var(--secondary)]">
+									<svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+									{featuredPost.data.difficulty}
+								</span>
+							)}
+						</div>
+						<h3 class="mb-3 text-2xl font-bold leading-tight text-[var(--text-main)] transition-colors group-hover:text-[var(--primary)] lg:text-3xl">
+							{featuredPost.data.title}
+						</h3>
+						<p class="mb-6 line-clamp-3 text-base text-[var(--text-muted)]">
+							{featuredPost.data.description}
+						</p>
+						<div class="mt-auto flex items-center gap-4 text-sm font-medium text-[var(--text-muted)]">
+							<div class="flex items-center gap-1.5">
+								<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+								<FormattedDate date={featuredPost.data.published} />
+							</div>
+							<div class="flex items-center gap-1.5">
+								<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+								<span>{featuredPost.readingTime}</span>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
+		)}
+
+		<!-- Latest Posts Grid -->
+		{remainingPosts.length > 0 && (
+			<div>
+				<h2 class="mb-6 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--primary)]"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+					{t('index.latest')}
+				</h2>
+				<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+					{remainingPosts.map((post) => (
+						<PostCard
+							id={post.id}
+							title={post.data.title}
+							description={post.data.description}
+							published={post.data.published}
+							image={post.data.image}
+							tags={post.data.tags}
+							categories={post.data.categories}
+							author={post.data.author}
+							difficulty={post.data.difficulty}
+							pinned={post.data.pinned}
+							readingTime={post.readingTime}
+						/>
+					))}
+				</div>
+				
+				<div class="mt-12 text-center">
+					<a href="/blog" class="inline-flex items-center gap-2 rounded-lg border border-[var(--border-light)] bg-[var(--card-bg)] px-6 py-2.5 text-sm font-bold uppercase tracking-widest text-[var(--text-main)] no-underline transition-colors hover:border-[var(--primary)] hover:text-[var(--primary)]">
+						{t('action.viewAll')}
+					</a>
+				</div>
+			</div>
+		)}
+	</section>
+</Layout>

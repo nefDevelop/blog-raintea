@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="404 — Página no encontrada" description="La página que buscas no existe.">
+	<section class="mx-auto flex min-h-[70vh] max-w-2xl flex-col items-center justify-center px-4 py-32 text-center">
+		<div class="relative">
+			<div class="absolute -inset-8 -z-10 animate-pulse rounded-full bg-[var(--primary)]/20 blur-3xl"></div>
+			<h1 class="bg-gradient-to-br from-[var(--text-main)] to-[var(--text-muted)] bg-clip-text text-[120px] font-black leading-none tracking-tighter text-transparent drop-shadow-sm">
+				404
+			</h1>
+		</div>
+		<h2 class="mt-6 text-2xl font-bold tracking-tight text-[var(--text-main)] sm:text-3xl">Parece que te has perdido</h2>
+		<p class="mt-4 max-w-md text-[var(--text-muted)]">
+			La página que estás buscando no existe, ha sido movida o quizá nunca existió. ¿Qué tal si pruebas a buscarla?
+		</p>
+		
+		<div class="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row">
+			<a
+				href="/"
+				class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[var(--primary)]/25 transition-transform hover:scale-105 active:scale-95 sm:w-auto"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+				Volver al inicio
+			</a>
+			
+			<button
+				x-data
+				@click="window.dispatchEvent(new CustomEvent('open-search'))"
+				class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] px-6 py-3.5 text-sm font-semibold text-[var(--text-main)] shadow-sm backdrop-blur-sm transition-all hover:scale-105 hover:border-[var(--primary)] hover:text-[var(--primary)] active:scale-95 sm:w-auto"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+				Buscar contenido
+			</button>
+		</div>
+	</section>
+</Layout>

@@ -1,0 +1,106 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ReadingProgress from '../components/ReadingProgress.astro';
+import ShareButtons from '../components/ShareButtons.astro';
+import Sidebar from '../components/widgets/Sidebar.astro';
+import { SIDEBAR_WIDGETS } from '../consts';
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import Layout from './Layout.astro';
+
+interface Props {
+	title: string;
+	description: string;
+	entries: CollectionEntry<'docs'>[];
+	currentTitle?: string;
+	currentSection?: string;
+	currentSlug?: string;
+	hideShare?: boolean;
+}
+const { title, description, entries, currentTitle, currentSection, currentSlug, hideShare } = Astro.props;
+
+const sections = [...new Set(entries.map((e) => e.data.section))];
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<Layout title={title} description={description}>
+	<ReadingProgress />
+	<div class="mx-auto flex flex-col lg:flex-row max-w-6xl px-4 py-4">
+		<aside class="hidden w-64 shrink-0 lg:block" aria-label="Documentation sidebar">
+			<div class="sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 rounded-xl border border-[var(--border-light)] bg-[var(--card-bg)] p-4 shadow-sm">
+				<nav aria-label="Documentation" class="space-y-6" x-data x-init="$el.querySelectorAll('a').forEach(a => {
+					const isActive = a.pathname === window.location.pathname;
+					a.classList.toggle('bg-[var(--primary-90)]', isActive);
+					a.classList.toggle('text-[var(--primary)]', isActive);
+					a.classList.toggle('font-medium', isActive);
+					if (isActive) a.setAttribute('aria-current', 'page');
+				})">
+					{
+						sections.map((section) => (
+							<div>
+								<h3 class="mb-2 text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">
+									{section}
+								</h3>
+								<ul class="space-y-0.5">
+									{
+										entries
+											.filter((e) => e.data.section === section)
+											.sort((a, b) => a.data.order - b.data.order)
+											.map((entry) => (
+												<li>
+													<a
+														href={`/docs/${entry.id}/`}
+														class="block rounded-md px-3 py-1.5 text-sm text-[var(--text-muted)] no-underline transition-colors hover:bg-[var(--border-light)] hover:text-[var(--text-main)]"
+													>
+														{entry.data.title}
+													</a>
+												</li>
+											))
+									}
+								</ul>
+							</div>
+						))
+					}
+				</nav>
+				<div class="border-t border-[var(--border-light)] pt-4">
+					<Sidebar widgets={SIDEBAR_WIDGETS.docs} />
+				</div>
+			</div>
+		</aside>
+
+		<details class="mb-4 lg:hidden">
+			<summary class="cursor-pointer rounded-lg border border-[var(--border-light)] bg-[var(--card-bg)] px-4 py-2.5 text-sm font-medium text-[var(--text-muted)] select-none list-none">
+				{currentTitle || t('action.docs')}
+			</summary>
+			<div class="mt-2 space-y-5 rounded-lg border border-[var(--border-light)] bg-[var(--card-bg)] p-3">
+				{
+					sections.map((section) => (
+						<div>
+							<h4 class="mb-2 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">{section}</h4>
+							<ul class="space-y-0.5">
+								{entries
+									.filter((e) => e.data.section === section)
+									.sort((a, b) => a.data.order - b.data.order)
+									.map((entry) => (
+										<li>
+											<a
+												href={`/docs/${entry.id}/`}
+												class="block rounded px-3 py-2 text-sm text-[var(--text-muted)] no-underline hover:bg-[var(--border-light)]"
+											>
+												{entry.data.title}
+											</a>
+										</li>
+									))}
+							</ul>
+						</div>
+					))
+				}
+			</div>
+		</details>
+		<article class="min-w-0 flex-1 lg:pl-12 lg:pt-6">
+			<slot />
+			{!hideShare && <ShareButtons title={title} />}
+		</article>
+	</div>
+</Layout>

@@ -1,0 +1,61 @@
+---
+interface Props {
+	title: string;
+}
+const { title } = Astro.props;
+const encodedUrl = encodeURIComponent(Astro.url.href);
+const encodedTitle = encodeURIComponent(title);
+---
+<div x-data="{ copied: false, mdCopied: false }" class="share-buttons mt-8 flex flex-wrap items-center gap-3 border-t border-[var(--border-light)] pt-6">
+	<span class="text-sm font-medium text-[var(--text-muted)]">Compartir:</span>
+	<div class="flex flex-wrap items-center gap-2">
+		<!-- Reddit -->
+		<a href={`https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`} target="_blank" rel="noopener noreferrer" class="flex size-9 items-center justify-center rounded-md border border-[var(--border-light)] bg-[var(--card-bg)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors" aria-label="Compartir en Reddit" title="Compartir en Reddit">
+			<svg class="size-4 fill-current" viewBox="0 0 24 24"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.825.07 3.48.63 4.674 1.516a1.84 1.84 0 0 1 1.172-.411 1.84 1.84 0 0 1 1.84 1.84 1.84 1.84 0 0 1-1.366 1.789c.072.328.108.673.108 1.028 0 2.876-2.926 5.207-6.527 5.207-3.6 0-6.527-2.33-6.527-5.207 0-.34.033-.672.098-.989a1.84 1.84 0 0 1-1.51-1.828 1.84 1.84 0 0 1 1.84-1.84 1.84 1.84 0 0 1 1.315.553c1.194-.887 2.86-1.452 4.696-1.518l.985-4.598a.34.34 0 0 1 .402-.268l3.473.882a1.25 1.25 0 0 1 1.115-.73zm-5.37 5.803c-1.382.02-2.647.41-3.645.975 1.015.704 2.399 1.142 3.982 1.142 1.594 0 2.99-.445 4.008-1.158-.998-.56-2.267-.942-3.646-.959h-.699zm.513 3.916c-1.008 0-2.03.284-2.775.78a1.56 1.56 0 0 0-.21.238 1.6 1.6 0 0 0-.07.127 1.06 1.06 0 0 0-.048.234 1.05 1.05 0 0 0 .066.405c.26.745 1.175 1.3 2.296 1.3 1.122 0 2.035-.555 2.296-1.3a.8.8 0 0 0 .018-.64c-.1-.2-.29-.36-.53-.45-.4-.15-.922-.19-1.043-.19 0 0-.34.003-.94.005zm-2.647.066a.33.33 0 0 0-.33.33.33.33 0 0 0 .33.33.33.33 0 0 0 .33-.33.33.33 0 0 0-.33-.33zm4.83 0a.33.33 0 0 0-.33.33.33.33 0 0 0 .33.33.33.33 0 0 0 .33-.33.33.33 0 0 0-.33-.33z"/></svg>
+		</a>
+
+		<!-- Telegram -->
+		<a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noopener noreferrer" class="flex size-9 items-center justify-center rounded-md border border-[var(--border-light)] bg-[var(--card-bg)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors" aria-label="Compartir en Telegram" title="Compartir en Telegram">
+			<svg class="size-4 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+		</a>
+
+		<!-- LinkedIn -->
+		<a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noopener noreferrer" class="flex size-9 items-center justify-center rounded-md border border-[var(--border-light)] bg-[var(--card-bg)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors" aria-label="Compartir en LinkedIn" title="Compartir en LinkedIn">
+			<svg class="size-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+		</a>
+
+		<!-- Email -->
+		<a href={`mailto:?subject=${encodedTitle}&body=${encodedUrl}`} target="_blank" rel="noopener noreferrer" class="flex size-9 items-center justify-center rounded-md border border-[var(--border-light)] bg-[var(--card-bg)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors" aria-label="Compartir por email" title="Compartir por email">
+			<svg class="size-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+		</a>
+
+		<!-- Obsidian (send to Obsidian via URL scheme) -->
+		<a
+			href={`obsidian://new?content=${encodeURIComponent(`[${title}](${Astro.url.href})`)}`}
+			target="_blank"
+			rel="noopener noreferrer"
+			class="flex size-9 items-center justify-center rounded-md border border-[var(--border-light)] bg-[var(--card-bg)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors"
+			aria-label="Enviar a Obsidian"
+			title="Enviar a Obsidian"
+		>
+			<svg class="size-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+		</a>
+
+		<!-- Copiar enlace -->
+		<button
+			@click={`
+				navigator.clipboard.writeText(window.location.href);
+				copied = true;
+				setTimeout(() => copied = false, 2000);
+			`}
+			class="flex size-9 items-center justify-center rounded-md border border-[var(--border-light)] bg-[var(--card-bg)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors cursor-pointer"
+			:class="copied ? 'border-[var(--primary)] text-[var(--primary)]' : ''"
+			aria-label="Copiar enlace"
+			title="Copiar enlace"
+		>
+			<svg x-show="!copied" class="size-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>
+			<svg x-show="copied" x-cloak class="size-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-d="M4.5 12.75l6 6 9-13.5" d="M4.5 12.75l6 6 9-13.5" /></svg>
+			<span aria-live="polite" class="sr-only" x-text="copied ? 'Link copied to clipboard' : ''"></span>
+		</button>
+	</div>
+</div>

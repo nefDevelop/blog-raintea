@@ -1,0 +1,17 @@
+<div
+	x-data="{ visible: false }"
+	@scroll.window="visible = (window.pageYOffset || document.documentElement.scrollTop) > 300"
+	@click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+	x-show="visible"
+	x-transition:enter="transition ease-out duration-200"
+	x-transition:enter-start="opacity-0 translate-y-2"
+	x-transition:enter-end="opacity-100 translate-y-0"
+	x-transition:leave="transition ease-in duration-150"
+	x-transition:leave-start="opacity-100 translate-y-0"
+	x-transition:leave-end="opacity-0 translate-y-2"
+	x-cloak
+	class="flex size-10 cursor-pointer items-center justify-center rounded-full border border-[var(--border-light)] bg-[var(--card-bg)] text-[var(--text-muted)] shadow-lg transition-colors hover:border-[var(--primary)] hover:text-[var(--primary)]"
+	aria-label="Volver arriba"
+>
+	<svg class="size-5 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>
+</div>

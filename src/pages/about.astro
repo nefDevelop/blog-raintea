@@ -1,0 +1,89 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import { SITE_TITLE, SITE_DESCRIPTION, SOCIAL_LINKS } from '../consts';
+import GitHub from '../components/icons/GitHub.astro';
+import RSS from '../components/icons/RSS.astro';
+import Twitter from '../components/icons/Twitter.astro';
+
+const posts = (await getCollection('blog')).filter((p) => !p.data.draft);
+const docs = await getCollection('docs');
+const totalTags = [...new Set(posts.flatMap((p) => p.data.tags || []))].length;
+const totalCategories = [...new Set(posts.flatMap((p) => p.data.categories || []))].length;
+
+const about = await getEntry('pages', 'about');
+const { stack = [], body = '' } = about?.data ?? {};
+
+const ICONS: Record<string, any> = { github: GitHub, rss: RSS, twitter: Twitter };
+---
+
+<Layout title={`About — ${about?.data.title || SITE_TITLE}`} description={about?.data.description || SITE_DESCRIPTION}>
+	<section class="mx-auto max-w-3xl px-4 py-12">
+		<div class="mb-12 text-center">
+			<div class="mx-auto mb-5 flex size-24 items-center justify-center rounded-full border-2 border-[var(--primary-20)] bg-[var(--primary-10)] text-4xl font-black text-[var(--primary)] shadow-sm">
+				{(about?.data.title || SITE_TITLE)[0]}
+			</div>
+			<h1 class="mb-3 text-4xl font-extrabold tracking-tight">{about?.data.title || SITE_TITLE}</h1>
+			<p class="text-xl text-[var(--text-muted)]">{about?.data.description || SITE_DESCRIPTION}</p>
+		</div>
+
+		<div class="mb-12">
+			<h2 class="mb-4 text-xl font-bold flex items-center gap-2">
+				<svg class="size-5 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+				Sobre el tema
+			</h2>
+			<div class="prose text-[var(--text-main)] max-w-none">
+				{body.split('\n\n').map((paragraph) => (
+					<p class="leading-relaxed">{paragraph}</p>
+				))}
+			</div>
+		</div>
+
+		<div class="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
+			{[
+				{ label: 'Posts', value: posts.length },
+				{ label: 'Docs', value: docs.length },
+				{ label: 'Tags', value: totalTags },
+				{ label: 'Categories', value: totalCategories },
+			].map((stat) => (
+				<div class="group rounded-2xl border border-[var(--border-light)] bg-[var(--card-bg)] p-5 text-center transition-all duration-300 hover:border-[var(--primary-20)] hover:bg-[var(--primary-10)] hover:-translate-y-1 hover:shadow-md">
+					<div class="text-3xl font-black text-[var(--text-main)] transition-colors group-hover:text-[var(--primary)]">{stat.value}</div>
+					<div class="mt-2 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] transition-colors group-hover:text-[var(--primary)]">{stat.label}</div>
+				</div>
+			))}
+		</div>
+
+		<div class="mb-12">
+			<h2 class="mb-4 text-xl font-bold flex items-center gap-2">
+				<svg class="size-5 text-[var(--secondary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
+				Stack
+			</h2>
+			<div class="flex flex-wrap gap-2.5">
+				{stack.map((tech) => (
+					<span class="rounded border border-[var(--secondary-20)] bg-[var(--secondary-10)] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[var(--secondary)] transition-colors hover:bg-[var(--secondary)] hover:text-white cursor-default">
+						{tech}
+					</span>
+				))}
+			</div>
+		</div>
+
+		{SOCIAL_LINKS.length > 0 && (
+			<div class="mb-12">
+				<h2 class="mb-4 text-xl font-bold flex items-center gap-2">
+					<svg class="size-5 text-[var(--tertiary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+					Enlaces
+				</h2>
+				<div class="flex gap-4">
+					{SOCIAL_LINKS.map((link) => {
+						const Icon = ICONS[link.icon];
+						return Icon ? (
+							<a href={link.url} target="_blank" rel="noopener noreferrer" class="group relative flex size-12 items-center justify-center rounded-xl bg-[var(--card-bg)] text-[var(--text-muted)] shadow-sm border border-[var(--border-light)] transition-all duration-300 hover:border-[var(--primary-20)] hover:bg-[var(--primary-10)] hover:text-[var(--primary)] hover:-translate-y-1 hover:shadow-md" aria-label={link.label}>
+								<Icon size={22} class="transition-transform duration-300 group-hover:scale-110" />
+							</a>
+						) : null;
+					})}
+				</div>
+			</div>
+		)}
+	</section>
+</Layout>

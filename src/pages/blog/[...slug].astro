@@ -1,0 +1,51 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import BlogPost from '../../layouts/BlogPost.astro';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('blog');
+	return posts.map((post) => ({
+		params: { slug: post.id },
+		props: post,
+	}));
+}
+type Props = CollectionEntry<'blog'>;
+
+const post = Astro.props;
+const allPosts = await getCollection('blog');
+const { Content } = await render(post);
+
+const words = (post.body || '').split(/\s+/g).filter(Boolean).length;
+const minutes = Math.max(1, Math.ceil(words / 200));
+const readingTime = { text: `${minutes} min read`, minutes, words };
+
+const seriesPosts = post.data.series
+	? allPosts
+			.filter((p) => p.data.series === post.data.series)
+			.sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999))
+	: [];
+
+const currentIndex = seriesPosts.findIndex((p) => p.id === post.id);
+const prevInSeries = currentIndex > 0 ? seriesPosts[currentIndex - 1] : null;
+const nextInSeries = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : null;
+
+const relatedPosts = allPosts
+	.filter((p) => p.id !== post.id && !p.data.draft)
+	.map((p) => {
+		const sharedTags = (p.data.tags || []).filter((t) => (post.data.tags || []).includes(t)).length;
+		const sharedCategories = (p.data.categories || []).filter((c) => (post.data.categories || []).includes(c)).length;
+		return { post: p, score: sharedTags + sharedCategories };
+	})
+	.filter((p) => p.score > 0)
+	.sort((a, b) => b.score - a.score)
+	.slice(0, 3)
+	.map((p) => p.post);
+
+const backlinks = allPosts
+	.filter((p) => p.id !== post.id && !p.data.draft && p.body?.includes(`[[${post.id}]]`) || p.body?.includes(`[[${post.id}|`))
+	.sort((a, b) => b.data.published.valueOf() - a.data.published.valueOf());
+---
+
+<BlogPost {...post.data} readingTime={readingTime} prevInSeries={prevInSeries} nextInSeries={nextInSeries} relatedPosts={relatedPosts} backlinks={backlinks} postId={post.id}>
+	<Content />
+</BlogPost>

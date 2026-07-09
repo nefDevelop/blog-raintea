@@ -1,0 +1,70 @@
+---
+import { getCollection } from 'astro:content';
+import { paginate } from 'astro';
+import Layout from '../../layouts/Layout.astro';
+import PostCard from '../../components/PostCard.astro';
+import Pagination from '../../components/Pagination.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+
+export async function getStaticPaths({ paginate: _paginate }: { paginate: typeof paginate }) {
+	const posts = (await getCollection('blog'))
+		.filter((p) => !p.data.draft)
+		.sort((a, b) => {
+			if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
+			return b.data.published.valueOf() - a.data.published.valueOf();
+		});
+
+	return _paginate(posts, { pageSize: 6 });
+}
+
+type Props = {
+	page: {
+		data: Awaited<ReturnType<typeof getCollection<'blog'>>>;
+		start: number;
+		end: number;
+		size: number;
+		total: number;
+		currentPage: number;
+		lastPage: number;
+		url: { current: string; prev?: string; next?: string };
+	};
+};
+
+const { page } = Astro.props;
+
+const posts = page.data.map((post: any) => {
+	const words = (post.body || '').split(/\s+/g).filter(Boolean).length;
+	const readingTime = `${Math.max(1, Math.ceil(words / 200))} min read`;
+	return { ...post, readingTime };
+});
+---
+
+<Layout title={`Blog — Page ${page.currentPage} — ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+	<section class="mx-auto max-w-5xl px-4 py-12">
+		<div class="mb-2 flex items-center justify-between">
+			<h1 class="text-3xl font-bold tracking-tight">Blog</h1>
+			<a href="/archive" class="text-sm text-[var(--primary)] no-underline hover:underline">Archive</a>
+		</div>
+		<p class="mb-8 text-[var(--text-muted)]">Thoughts, notes, and everything in between.</p>
+
+		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			{posts.map((post) => (
+				<PostCard
+					id={post.id}
+					title={post.data.title}
+					description={post.data.description}
+					published={post.data.published}
+					image={post.data.image}
+					tags={post.data.tags}
+					categories={post.data.categories}
+					author={post.data.author}
+					difficulty={post.data.difficulty}
+					pinned={post.data.pinned}
+					readingTime={post.readingTime}
+				/>
+			))}
+		</div>
+
+		<Pagination currentPage={page.currentPage} lastPage={page.lastPage} baseUrl="/blog/" />
+	</section>
+</Layout>

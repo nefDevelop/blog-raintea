@@ -1,0 +1,72 @@
+---
+interface Props {
+	class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<div
+	x-data="{
+		rows: [],
+		sortKey: null,
+		sortDir: 'asc',
+		init() {
+			const table = this.$el.querySelector('table');
+			if (!table) return;
+			const headers = table.querySelectorAll('th');
+			const tbody = table.querySelector('tbody') || table;
+			this.rows = Array.from(tbody.querySelectorAll('tr'));
+			headers.forEach((th, i) => {
+				th.style.cursor = 'pointer';
+				th.addEventListener('click', () => this.sort(i));
+			});
+		},
+		sort(col) {
+			if (this.sortKey === col) {
+				this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+			} else {
+				this.sortKey = col;
+				this.sortDir = 'asc';
+			}
+			const dir = this.sortDir;
+			this.rows.sort((a, b) => {
+				const va = a.children[col]?.textContent?.trim() || '';
+				const vb = b.children[col]?.textContent?.trim() || '';
+				const na = parseFloat(va), nb = parseFloat(vb);
+				if (!isNaN(na) && !isNaN(nb)) return dir === 'asc' ? na - nb : nb - na;
+				return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+			});
+			const tbody = this.$el.querySelector('tbody');
+			if (tbody) {
+				tbody.replaceChildren(...this.rows);
+				// update sort indicators
+				this.$el.querySelectorAll('th').forEach((th, i) => {
+					th.classList.toggle('sort-asc', i === col && dir === 'asc');
+					th.classList.toggle('sort-desc', i === col && dir === 'desc');
+				});
+			}
+		},
+	}"
+	class={className}
+>
+	<slot />
+</div>
+
+<style>
+	th.sort-asc::after,
+	th.sort-desc::after {
+		content: '';
+		display: inline-block;
+		margin-left: 0.4em;
+		vertical-align: middle;
+		border: 4px solid transparent;
+	}
+	th.sort-asc::after {
+		border-bottom-color: var(--primary);
+		border-top: none;
+	}
+	th.sort-desc::after {
+		border-top-color: var(--primary);
+		border-bottom: none;
+	}
+</style>

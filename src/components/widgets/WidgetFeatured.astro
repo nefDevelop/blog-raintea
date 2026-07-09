@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import FormattedDate from '../FormattedDate.astro';
+
+const posts = (await getCollection('blog'))
+	.filter((p) => !p.data.draft)
+	.sort((a, b) => {
+		if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
+		return b.data.published.valueOf() - a.data.published.valueOf();
+	});
+const featured = posts[0];
+---
+
+{featured && (
+	<>
+	<h3 class="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+		<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--primary)]"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+		Featured
+	</h3>
+<a href={`/blog/${featured.id}/`} class="group block rounded-lg border border-[var(--border-light)] bg-[var(--card-bg)] p-3 no-underline transition-shadow hover:shadow-sm">
+	{featured.data.image && (
+		<img src={featured.data.image} alt="" class="mb-2.5 aspect-video w-full rounded object-cover" loading="lazy" />
+	)}
+	<div class="mb-2 flex flex-wrap items-center gap-1.5">
+		{featured.data.categories?.length > 0 && (
+			<span class="rounded bg-[var(--primary-10)] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest text-[var(--primary)]">
+				{featured.data.categories[0]}
+			</span>
+		)}
+		{featured.data.difficulty && (
+			<span class="flex items-center gap-0.5 rounded border border-[var(--secondary)] bg-[var(--secondary-10)] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest text-[var(--secondary)]">
+				<svg class="size-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+				{featured.data.difficulty}
+			</span>
+		)}
+	</div>
+	<p class="text-sm font-medium text-[var(--text-main)] group-hover:text-[var(--primary)] line-clamp-2">{featured.data.title}</p>
+	<p class="mt-1 text-[10px] text-[var(--text-muted)]"><FormattedDate date={featured.data.published} /></p>
+</a>
+	</>
+)}

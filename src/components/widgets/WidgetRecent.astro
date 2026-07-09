@@ -1,0 +1,38 @@
+---
+import { getCollection } from 'astro:content';
+import FormattedDate from '../FormattedDate.astro';
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const posts = (await getCollection('blog'))
+	.filter((p) => !p.data.draft)
+	.sort((a, b) => b.data.published.valueOf() - a.data.published.valueOf())
+	.slice(0, 3);
+---
+
+<h3 class="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+	<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--primary)]"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+	{t('sidebar.recent')}
+</h3>
+<div class="space-y-3">
+	{posts.map((post) => (
+		<a href={`/blog/${post.id}/`} class="group block no-underline transition-transform hover:translate-x-1">
+			<div class="mb-1 flex items-center gap-1.5">
+				{post.data.categories?.length > 0 && (
+					<span class="rounded bg-[var(--primary-10)] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest text-[var(--primary)]">
+						{post.data.categories[0]}
+					</span>
+				)}
+				{post.data.difficulty && (
+					<span class="flex items-center gap-0.5 rounded border border-[var(--secondary)] bg-[var(--secondary-10)] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest text-[var(--secondary)]">
+						<svg class="size-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+					</span>
+				)}
+			</div>
+			<p class="text-sm text-[var(--text-main)] transition-colors group-hover:text-[var(--primary)] line-clamp-2">{post.data.title}</p>
+			<p class="mt-1 text-[10px] text-[var(--text-muted)]"><FormattedDate date={post.data.published} /></p>
+		</a>
+	))}
+</div>

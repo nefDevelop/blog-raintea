@@ -1,0 +1,69 @@
+---
+import { getCollection } from 'astro:content';
+import FormattedDate from '../FormattedDate.astro';
+
+interface Props {
+	seriesName?: string;
+	currentSlug?: string;
+}
+
+const { seriesName, currentSlug } = Astro.props;
+
+const allSeries = seriesName ? await getCollection('series') : [];
+const seriesData = allSeries.find((s) => s.id === seriesName);
+const allPosts = await getCollection('blog');
+
+const chapters = seriesData
+	? seriesData.data.chapters
+		.map((slug) => allPosts.find((p) => p.id === slug))
+		.filter(Boolean)
+	: [];
+
+const currentIndex = chapters.findIndex((p) => p!.id === currentSlug);
+---
+
+{chapters.length > 0 && (
+	<div>
+		<h3 class="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--primary)]"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+			<a href={`/series/${seriesName}/`} class="text-[var(--text-muted)] no-underline hover:text-[var(--primary)] transition-colors">{seriesData?.data.title || seriesName}</a>
+		</h3>
+		<div class="mb-2 flex gap-1">
+			{chapters.map((_, i) => (
+				<div class={`h-1 flex-1 rounded-full ${
+					i < currentIndex ? 'bg-[var(--primary)]' :
+					i === currentIndex ? 'bg-[var(--primary)]' :
+					'bg-[var(--border-light)]'
+				}`} />
+			))}
+		</div>
+		<div class="space-y-0.5">
+			{chapters.map((p, i) => {
+				const isCurrent = p!.id === currentSlug;
+				const isCompleted = i < currentIndex;
+				return (
+					<a
+						href={`/blog/${p!.id}/`}
+						class={`flex items-center gap-2 rounded-md px-2 py-1 text-sm no-underline transition-colors ${
+							isCurrent
+								? 'bg-[var(--primary-90)] text-[var(--primary)] font-medium'
+								: 'text-[var(--text-muted)] hover:bg-[var(--border-light)] hover:text-[var(--text-main)]'
+						}`}
+						{...(isCurrent ? { 'aria-current': 'page' } : {})}
+					>
+						<span class={`flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] ${
+							isCompleted
+								? 'bg-[var(--primary)] text-white'
+								: isCurrent
+									? 'bg-[var(--primary)] text-white'
+									: 'bg-[var(--tertiary-90)] text-[var(--tertiary-10)]'
+						}`}>
+							{isCompleted ? '✓' : i + 1}
+						</span>
+						<span class="truncate">{p!.data.title}</span>
+					</a>
+				);
+			})}
+		</div>
+	</div>
+)}

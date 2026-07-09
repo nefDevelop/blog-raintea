@@ -1,0 +1,198 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import BackToTop from '../components/BackToTop.astro';
+import Footer from '../components/Footer.astro';
+import SearchModal from '../components/SearchModal.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import 'katex/dist/katex.min.css';
+import 'photoswipe/dist/photoswipe.css';
+import { PALETTE_SEED, HARMONY, derivePalette, deriveUIColors } from '../config/palette';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const { title = SITE_TITLE, description = SITE_DESCRIPTION } = Astro.props;
+
+const { primary, secondary, tertiary, neutral } = derivePalette(PALETTE_SEED, HARMONY);
+const light = deriveUIColors(PALETTE_SEED, false);
+const dark = deriveUIColors(PALETTE_SEED, true);
+
+const paletteVars = `--primary:${primary};--secondary:${secondary};--tertiary:${tertiary};--neutral:${neutral}`;
+const uiCSS = `
+:root {
+	--bg: ${light.bg};
+	--card-bg: ${light.cardBg};
+	--text-main: ${light.textMain};
+	--text-muted: ${light.textMuted};
+	--dark-bg: ${dark.bg};
+	--dark-card-bg: ${dark.cardBg};
+	--border: color-mix(in srgb, var(--text-main), transparent 85%);
+	--border-light: color-mix(in srgb, var(--text-main), transparent 92%);
+}
+.dark {
+	--bg: var(--dark-bg);
+	--card-bg: var(--dark-card-bg);
+	--text-main: #ffffff;
+	--text-muted: #a1a1aa;
+}
+`;
+---
+
+<!doctype html>
+<html lang="en" class="min-h-screen" data-theme="github-light" style={paletteVars}>
+	<head>
+		<ClientRouter fallback="animate" />
+		<BaseHead title={title} description={description} />
+		<style is:global set:html={uiCSS}></style>
+	</head>
+	<body class="flex min-h-screen flex-col">
+		<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[9999] focus:rounded focus:bg-[var(--primary)] focus:px-4 focus:py-2 focus:text-white focus:no-underline">
+			Skip to main content
+		</a>
+		<Header />
+		<main id="main-content" class="flex-1 pb-16 md:pb-0" transition:animate="fade">
+			<slot />
+		</main>
+
+		<!-- FAB Region -->
+		<div class="pointer-events-none fixed bottom-24 right-4 z-[60] flex flex-col items-center justify-end gap-3 md:bottom-8 md:right-8">
+			<div class="pointer-events-auto flex flex-col items-center gap-3">
+				<slot name="fab" />
+				<BackToTop />
+			</div>
+		</div>
+
+		<Footer />
+		<SearchModal />
+	</body>
+</html>
+
+<script>
+	import Alpine from 'alpinejs';
+	window.Alpine = Alpine;
+	Alpine.start();
+
+	// Reinitialize Alpine after View Transition navigations
+	document.addEventListener('astro:page-load', () => {
+		Alpine.initTree(document.body);
+		enableCheckboxes();
+		updateNavActive();
+		initThirdParty();
+	});
+	enableCheckboxes();
+	updateNavActive();
+	initThirdParty();
+
+	function updateNavActive() {
+		document.querySelectorAll('[aria-label="Documentation sidebar"] a').forEach((a) => {
+			const isActive = a.pathname === window.location.pathname;
+			a.classList.toggle('bg-[var(--primary-90)]', isActive);
+			a.classList.toggle('text-[var(--primary)]', isActive);
+			a.classList.toggle('font-medium', isActive);
+			a.classList.toggle('text-[var(--text-muted)]', !isActive);
+			if (isActive) a.setAttribute('aria-current', 'page');
+			else a.removeAttribute('aria-current');
+		});
+	}
+
+	function enableCheckboxes() {
+		document.querySelectorAll('.task-list-item input[type="checkbox"]').forEach((cb) => {
+			cb.removeAttribute('disabled');
+		});
+	}
+
+	// Toggle task-list data-task on click
+	document.addEventListener('change', (e) => {
+		const cb = e.target.closest('.task-list-item input[type="checkbox"]');
+		if (!cb) return;
+		const li = cb.closest('.task-list-item');
+		if (!li) return;
+		li.dataset.task = cb.checked ? 'x' : ' ';
+	});
+
+	// Sortable tables (delegated, works across navigations)
+	document.addEventListener('click', (e) => {
+		const th = e.target.closest('.prose th');
+		if (!th) return;
+		const table = th.closest('table');
+		if (!table) return;
+		const tbody = table.querySelector('tbody');
+		if (!tbody) return;
+		const col = Array.from(th.parentElement.children).indexOf(th);
+		const dir = table.dataset.sortCol === String(col) && table.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+		table.dataset.sortCol = col;
+		table.dataset.sortDir = dir;
+
+		const rows = Array.from(tbody.querySelectorAll('tr'));
+		rows.sort((a, b) => {
+			const va = a.children[col]?.textContent?.trim() || '';
+			const vb = b.children[col]?.textContent?.trim() || '';
+			const na = parseFloat(va), nb = parseFloat(vb);
+			if (!isNaN(na) && !isNaN(nb)) return dir === 'asc' ? na - nb : nb - na;
+			return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+		});
+		tbody.replaceChildren(...rows);
+
+		table.querySelectorAll('th').forEach((h, i) => {
+			h.classList.toggle('sort-asc', i === col && dir === 'asc');
+			h.classList.toggle('sort-desc', i === col && dir === 'desc');
+		});
+	});
+
+	function initThirdParty() {
+		// Pagefind search UI
+		if (document.querySelector('.pagefind-ui') && !document.querySelector('.pagefind-ui form')) {
+			const s = document.createElement('script');
+			s.src = '/pagefind/pagefind-ui.js';
+			s.onload = () => {
+				// @ts-ignore
+				new PagefindUI({ element: '.pagefind-ui' })
+			};
+			document.body.appendChild(s);
+		}
+
+		// PhotoSwipe
+		const imgs = document.querySelectorAll<HTMLImageElement>('.prose img');
+		if (imgs.length) {
+			import('photoswipe').then(({ default: PhotoSwipe }) => {
+				const items = Array.from(imgs).map((img) => ({
+					element: img,
+					src: img.src,
+					msrc: img.src,
+					w: img.naturalWidth || 1200,
+					h: img.naturalHeight || 800,
+					alt: img.alt || '',
+				}));
+				imgs.forEach((img, i) => {
+					img.style.cursor = 'zoom-in';
+					img.addEventListener('click', () => {
+						const pswp = new PhotoSwipe({ dataSource: items, index: i });
+						pswp.init();
+					});
+				});
+			});
+		}
+
+		// Mermaid
+		if (document.querySelector('.mermaid')) {
+			import('mermaid').then((mermaidModule) => {
+				const mermaid = mermaidModule.default;
+				const isDark = document.documentElement.classList.contains('dark');
+				mermaid.initialize({ startOnLoad: true, theme: isDark ? 'dark' : 'default', securityLevel: 'loose' });
+				
+				// Re-render specifically if needed, since astro:page-load might need manual trigger
+				mermaid.run({ querySelector: '.mermaid' });
+
+				const obs = new MutationObserver(() => {
+					const dark = document.documentElement.classList.contains('dark');
+					mermaid.initialize({ theme: dark ? 'dark' : 'default' });
+				});
+				obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+			});
+		}
+	}
+</script>

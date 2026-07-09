@@ -1,0 +1,37 @@
+---
+import { getCollection } from 'astro:content';
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+
+export async function getStaticPaths() {
+	const docs = await getCollection('docs');
+	const allTags = [...new Set(docs.flatMap((d) => d.data.tags || []))];
+
+	return allTags.map((tag) => {
+		const tagged = docs.filter((d) => (d.data.tags || []).includes(tag));
+		return {
+			params: { tag },
+			props: { tagName: tag, docs: tagged },
+		};
+	});
+}
+
+const { tagName, docs } = Astro.props;
+const allDocs = await getCollection('docs');
+---
+
+<DocsLayout title={`#${tagName} — Docs`} description={`Documentation tagged with ${tagName}`} entries={allDocs} hideShare>
+	<h1 class="mb-2 text-3xl font-bold">#<span class="text-[var(--secondary)]">{tagName}</span></h1>
+	<p class="mb-8 text-sm text-[var(--text-muted)]">{docs.length} doc(s)</p>
+
+	<div class="grid gap-4 sm:grid-cols-2">
+		{docs.map((doc) => (
+			<a
+				href={`/docs/${doc.id}/`}
+				class="block rounded-xl border border-[var(--border-light)] bg-[var(--card-bg)] p-5 no-underline transition-shadow hover:shadow-sm"
+			>
+				<h2 class="text-lg font-semibold text-[var(--text-main)]">{doc.data.title}</h2>
+				<p class="mt-1 text-sm text-[var(--text-muted)]">{doc.data.description}</p>
+			</a>
+		))}
+	</div>
+</DocsLayout>

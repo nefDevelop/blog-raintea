@@ -1,0 +1,25 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const catCounts = new Map<string, number>();
+for (const post of posts) {
+	for (const cat of post.data.categories || []) {
+		catCounts.set(cat, (catCounts.get(cat) || 0) + 1);
+	}
+}
+const allCats = [...catCounts.entries()].sort((a, b) => b[1] - a[1]);
+---
+
+<h3 class="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+	<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--primary)]"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+	Categories
+</h3>
+<div class="space-y-1">
+	{allCats.map(([cat, count]) => (
+		<a href={`/categories/${cat}/`} class="flex items-center justify-between rounded-md px-2 py-1.5 text-sm text-[var(--text-muted)] no-underline transition-colors hover:bg-[var(--primary-10)] hover:text-[var(--primary)]">
+			<span>{cat}</span>
+			<span class="rounded bg-[var(--border-light)] px-1.5 py-0.5 text-[10px] font-medium opacity-80 transition-colors group-hover:bg-[var(--primary-20)]">{count}</span>
+		</a>
+	))}
+</div>

@@ -1,0 +1,117 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const postsByDate: Record<string, string> = {};
+
+for (const post of posts) {
+	if (post.data.draft) continue;
+	// Local date format YYYY-MM-DD
+	const dateStr = post.data.published.toISOString().split('T')[0];
+	// Keep the first post of the day for the link
+	if (!postsByDate[dateStr]) {
+		postsByDate[dateStr] = `/blog/${post.id}/`;
+	}
+}
+---
+
+<h3 class="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+	<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--primary)]"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+	Calendar
+</h3>
+
+<div 
+	class="rounded-xl border border-[var(--border-light)] bg-[var(--card-bg)] p-3 shadow-sm"
+	x-data={`{
+		postsByDate: ${JSON.stringify(postsByDate)},
+		currentDate: new Date(),
+		get days() {
+			const year = this.currentDate.getFullYear();
+			const month = this.currentDate.getMonth();
+			const firstDay = new Date(year, month, 1).getDay();
+			const daysInMonth = new Date(year, month + 1, 0).getDate();
+			
+			// Adjust firstDay for Monday-first week (0 = Monday, 6 = Sunday)
+			// En español, la semana suele empezar en lunes.
+			const startDay = firstDay === 0 ? 6 : firstDay - 1;
+			
+			const daysArray = [];
+			for (let i = 0; i < startDay; i++) daysArray.push(null);
+			for (let i = 1; i <= daysInMonth; i++) daysArray.push(i);
+			return daysArray;
+		},
+		get monthName() {
+			// Formato en español
+			return this.currentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+		},
+		prevMonth() {
+			this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
+		},
+		nextMonth() {
+			this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
+		},
+		getFormattedDate(day) {
+			if (!day) return '';
+			const d = new Date(Date.UTC(this.currentDate.getFullYear(), this.currentDate.getMonth(), day));
+			return d.toISOString().split('T')[0];
+		},
+		getPostUrl(day) {
+			const str = this.getFormattedDate(day);
+			return this.postsByDate[str] || null;
+		},
+		isToday(day) {
+			if (!day) return false;
+			const today = new Date();
+			return day === today.getDate() && 
+				   this.currentDate.getMonth() === today.getMonth() && 
+				   this.currentDate.getFullYear() === today.getFullYear();
+		}
+	}`}
+>
+	<!-- Header del Calendario -->
+	<div class="mb-3 flex items-center justify-between px-1">
+		<button @click="prevMonth" class="flex size-6 items-center justify-center rounded hover:bg-[var(--border-light)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors" aria-label="Mes anterior">
+			<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+		</button>
+		<span class="text-xs font-semibold capitalize text-[var(--text-main)]" x-text="monthName"></span>
+		<button @click="nextMonth" class="flex size-6 items-center justify-center rounded hover:bg-[var(--border-light)] text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors" aria-label="Mes siguiente">
+			<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+		</button>
+	</div>
+
+	<!-- Días de la semana -->
+	<div class="mb-1 grid grid-cols-7 text-center">
+		{['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(day => (
+			<div class="text-[10px] font-medium text-[var(--text-muted)]">{day}</div>
+		))}
+	</div>
+
+	<!-- Cuadrícula de días -->
+	<div class="grid grid-cols-7 gap-1 text-center">
+		<template x-for="(day, index) in days" :key="index">
+			<div class="aspect-square">
+				<template x-if="day">
+					<div class="h-full w-full">
+						<!-- Si hay un post ese día -->
+						<template x-if="getPostUrl(day)">
+							<a 
+								:href="getPostUrl(day)"
+								class="flex h-full w-full items-center justify-center rounded text-xs font-bold text-[var(--primary)] bg-[var(--primary-10)] hover:bg-[var(--primary)] hover:text-white transition-colors"
+								:title="'Ver post del ' + day"
+								x-text="day"
+							></a>
+						</template>
+						<!-- Si NO hay post pero es hoy -->
+						<template x-if="!getPostUrl(day) && isToday(day)">
+							<div class="flex h-full w-full items-center justify-center rounded border border-[var(--primary)] text-xs font-bold text-[var(--text-main)]" x-text="day"></div>
+						</template>
+						<!-- Si es un día normal -->
+						<template x-if="!getPostUrl(day) && !isToday(day)">
+							<div class="flex h-full w-full items-center justify-center rounded text-xs text-[var(--text-muted)] hover:bg-[var(--border-light)] hover:text-[var(--text-main)] cursor-default transition-colors" x-text="day"></div>
+						</template>
+					</div>
+				</template>
+			</div>
+		</template>
+	</div>
+</div>

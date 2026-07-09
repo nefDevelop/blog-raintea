@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const allSeries = await getCollection('series');
+const allPosts = await getCollection('blog');
+
+const seriesWithStats = allSeries.map((s) => {
+	const chapters = s.data.chapters
+		.map((slug) => allPosts.find((p) => p.id === slug))
+		.filter(Boolean);
+	const totalWords = chapters.reduce((sum, p) => sum + (p!.body || '').split(/\s+/g).filter(Boolean).length, 0);
+	const totalMinutes = Math.max(1, Math.ceil(totalWords / 200));
+	return { ...s, chapters, totalMinutes };
+});
+---
+
+<Layout title="Series" description="All blog series">
+	<section class="mx-auto max-w-4xl px-4 py-12">
+		<h1 class="mb-2 text-3xl font-bold">Series</h1>
+		<p class="mb-8 text-[var(--text-muted)]">Browse posts organized as book-like chapters.</p>
+
+		{seriesWithStats.length === 0 && (
+			<p class="text-[var(--text-muted)]">No series yet.</p>
+		)}
+
+		<div class="space-y-6">
+			{seriesWithStats.map((s) => (
+				<a
+					href={`/series/${s.id}/`}
+					class="flex items-start gap-5 rounded-xl border border-[var(--border-light)] bg-[var(--card-bg)] p-5 no-underline transition-shadow hover:shadow-sm"
+				>
+					{s.data.cover && (
+						<img src={s.data.cover} alt="" class="hidden size-28 shrink-0 rounded-lg object-cover sm:block" />
+					)}
+					<div class="min-w-0 flex-1">
+						<h2 class="text-xl font-bold text-[var(--text-main)] group-hover:text-[var(--primary)]">{s.data.title}</h2>
+						<p class="mt-1 text-sm text-[var(--text-muted)] line-clamp-2">{s.data.description}</p>
+						<div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--text-muted)]">
+							<span>{s.chapters.length} chapter{s.chapters.length !== 1 ? 's' : ''}</span>
+							<span>{s.totalMinutes} min read</span>
+							{s.data.author.length > 0 && <span>by {s.data.author.join(', ')}</span>}
+						</div>
+					</div>
+				</a>
+			))}
+		</div>
+	</section>
+</Layout>

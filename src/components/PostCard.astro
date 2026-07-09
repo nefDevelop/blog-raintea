@@ -1,0 +1,107 @@
+---
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+	id: string;
+	title: string;
+	description: string;
+	published: Date;
+	image?: string;
+	tags?: string[];
+	categories?: string[];
+	author?: string[];
+	difficulty?: string;
+	pinned?: boolean;
+	readingTime?: string;
+}
+
+const {
+	id, title, description, published, image,
+	tags = [], categories = [], author = [],
+	difficulty, pinned, readingTime,
+} = Astro.props;
+---
+
+<article class="group flex flex-col rounded-xl border border-[var(--border-light)] bg-[var(--card-bg)] transition-shadow hover:shadow-sm">
+	{image ? (
+		<a href={`/blog/${id}/`} class="block no-underline overflow-hidden rounded-t-xl" tabindex="-1">
+			<img src={image} alt="" class="aspect-video w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105" loading="lazy" decoding="async" />
+		</a>
+	) : (
+		<a href={`/blog/${id}/`} class="block no-underline overflow-hidden rounded-t-xl" tabindex="-1">
+			<div class="flex aspect-video w-full items-center justify-center bg-gradient-to-br from-[var(--primary-80)] to-[var(--primary-95)] transition-transform duration-500 ease-out group-hover:scale-105">
+				<span class="select-none text-5xl font-black text-[var(--primary-30)] opacity-40 transition-transform duration-500 ease-out group-hover:scale-110">{title[0]?.toUpperCase()}</span>
+			</div>
+		</a>
+	)}
+
+	<div class="flex flex-1 flex-col p-5">
+		<a href={`/blog/${id}/`} class="no-underline">
+			<h2 class="text-lg font-semibold leading-snug text-[var(--text-main)] group-hover:text-[var(--primary)]">
+				{pinned && (
+					<span class="mr-2 inline-flex items-center gap-1 rounded bg-[var(--primary)] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+						<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+						Pinned
+					</span>
+				)}
+				{title}
+			</h2>
+		</a>
+
+		<p class="line-clamp-2 text-sm text-[var(--text-muted)]">{description}</p>
+
+		<div class="flex-1 min-h-[30px]"></div>
+
+		{(categories[0] || difficulty || tags.length > 0) && (
+			<div class="mb-[10px] flex flex-wrap items-center gap-2">
+				{categories[0] && (
+					<a
+						href={`/categories/${categories[0]}/`}
+						class="rounded bg-[var(--primary-10)] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--primary)] no-underline transition-colors hover:bg-[var(--primary-20)]"
+					>
+						{categories[0]}
+					</a>
+				)}
+				{difficulty && (
+					<span
+						class="rounded px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
+						style={difficulty === 'beginner' ? 'background:var(--secondary-10);color:var(--secondary)' :
+							difficulty === 'intermediate' ? 'background:var(--primary-10);color:var(--primary)' :
+							'background:var(--tertiary-10);color:var(--tertiary)'}
+					>
+						{difficulty}
+					</span>
+				)}
+				{tags.length > 0 && (
+					<div class="flex items-center gap-1.5 ml-1">
+						{tags.slice(0, 3).map((tag) => (
+							<a
+								href={`/tags/${tag}/`}
+								class="rounded px-1.5 py-0.5 text-[12px] text-[var(--text-muted)] no-underline transition-all hover:bg-[var(--primary-10)] hover:text-[var(--primary)]"
+							>
+								#{tag}
+							</a>
+						))}
+						{tags.length > 3 && (
+							<span class="cursor-default text-[12px] text-[var(--text-muted)]" title={tags.slice(3).join(', ')}>+{tags.length - 3}</span>
+						)}
+					</div>
+				)}
+			</div>
+		)}
+
+		<div class="flex items-center justify-between border-t border-[var(--border-light)] pt-3 text-xs text-[var(--text-muted)]">
+			{author.length > 0 && (
+				<span>
+					by {author.map((a, i) => (
+						<><a href={`/authors/${a}/`} class="text-[var(--text-muted)] hover:text-[var(--primary)] no-underline">{a}</a>{i < author.length - 1 ? ', ' : ''}</>
+					))}
+				</span>
+			)}
+			<span>
+				<FormattedDate date={published} />
+				{readingTime && <><span class="mx-1">/</span><span>{readingTime}</span></>}
+			</span>
+		</div>
+	</div>
+</article>

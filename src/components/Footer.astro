@@ -1,0 +1,41 @@
+---
+import { SITE_TITLE, SITE_DESCRIPTION, SOCIAL_LINKS } from '../consts';
+import GitHub from './icons/GitHub.astro';
+import RSS from './icons/RSS.astro';
+import Twitter from './icons/Twitter.astro';
+
+const ICONS: Record<string, any> = { github: GitHub, rss: RSS, twitter: Twitter };
+
+const today = new Date();
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<footer transition:name="footer" transition:persist class="mt-auto border-t border-[var(--border-light)] bg-[var(--bg)] pb-16 pt-6 dark:bg-neutral-950 md:pb-6 md:pt-8">
+	<div class="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-4 sm:flex-row">
+		<div class="flex items-center gap-3">
+			<div class="flex size-8 items-center justify-center rounded-full bg-[var(--primary)] text-sm text-white font-black">
+				{SITE_TITLE[0]}
+			</div>
+			<p class="text-sm text-[var(--text-muted)]">
+				&copy; {today.getFullYear()} {SITE_TITLE}.
+			</p>
+		</div>
+
+		<div class="flex items-center gap-3">
+			{SOCIAL_LINKS.map((link) => {
+				const Icon = ICONS[link.icon];
+				return Icon ? (
+					<a href={link.url} target="_blank" rel="noopener noreferrer" class="flex size-8 items-center justify-center rounded-lg text-[var(--text-muted)] transition-colors hover:text-[var(--primary)]" aria-label={link.label}>
+						<Icon size={16} />
+					</a>
+				) : null;
+			})}
+			<span class="text-sm text-[var(--text-muted)]">
+				{t('footer.built')} <a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="font-medium text-[var(--text-main)] transition-colors hover:text-[var(--primary)] no-underline">Astro</a>
+			</span>
+		</div>
+	</div>
+</footer>

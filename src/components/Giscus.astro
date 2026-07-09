@@ -1,0 +1,60 @@
+---
+import { GISCUS } from '../consts';
+const isEnabled = Boolean(GISCUS.repo && GISCUS.repoId);
+---
+
+{isEnabled && (
+	<section class="mt-12">
+		<h2 class="mb-6 text-xl font-bold">Comments</h2>
+		<div
+			class="giscus"
+			x-data="{ theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light' }"
+			x-init="$watch('theme', val => {
+				const frame = document.querySelector('.giscus-frame');
+				if (frame) frame.contentWindow.postMessage({ giscus: { setConfig: { theme: val } } }, 'https://giscus.app');
+			})"
+			data-repo={GISCUS.repo}
+			data-repo-id={GISCUS.repoId}
+			data-category={GISCUS.category}
+			data-category-id={GISCUS.categoryId}
+			data-mapping="pathname"
+			data-strict="0"
+			data-reactions-enabled="1"
+			data-emit-metadata="0"
+			data-input-position="top"
+			data-theme="light"
+			data-lang="en"
+			data-loading="lazy"
+		></div>
+	</section>
+
+	<script define:vars={{ repo: GISCUS.repo, repoId: GISCUS.repoId, category: GISCUS.category, categoryId: GISCUS.categoryId }}>
+		const giscusTheme = () => document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+		const s = document.createElement('script');
+		s.src = 'https://giscus.app/client.js';
+		s.setAttribute('data-repo', repo);
+		s.setAttribute('data-repo-id', repoId);
+		s.setAttribute('data-category', category);
+		s.setAttribute('data-category-id', categoryId);
+		s.setAttribute('data-mapping', 'pathname');
+		s.setAttribute('data-strict', '0');
+		s.setAttribute('data-reactions-enabled', '1');
+		s.setAttribute('data-emit-metadata', '0');
+		s.setAttribute('data-input-position', 'top');
+		s.setAttribute('data-theme', giscusTheme());
+		s.setAttribute('data-lang', 'en');
+		s.setAttribute('data-loading', 'lazy');
+		s.setAttribute('crossorigin', 'anonymous');
+		s.onload = () => {
+			document.addEventListener('astro:after-swap', () => {
+				const frame = document.querySelector('.giscus-frame');
+				if (frame) {
+					frame.contentWindow.postMessage({
+						giscus: { setConfig: { theme: giscusTheme() } }
+					}, 'https://giscus.app');
+				}
+			});
+		};
+		document.head.appendChild(s);
+	</script>
+)}

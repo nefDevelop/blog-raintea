@@ -1,0 +1,79 @@
+---
+// On-page table of contents for the current article
+import { getLangFromUrl, useTranslations } from '../../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<div
+	x-data="{
+		headings: [],
+		active: '',
+		visibleEntries: new Set(),
+		isClickScrolling: false,
+		clickScrollTimeout: null,
+		init() {
+			console.log('[WidgetTOC] Initializing...');
+			this.headings = Array.from(document.querySelectorAll('article h2, article h3'))
+				.filter(h => h.id)
+				.map((h) => ({ id: h.id, text: (h.textContent || '').replace(/#$/, '').trim(), level: h.tagName.toLowerCase() }));
+			console.log('[WidgetTOC] Found headings:', this.headings);
+			const observer = new IntersectionObserver((entries) => {
+				entries.forEach((entry) => { 
+					if (entry.isIntersecting) {
+						this.visibleEntries.add(entry.target.id);
+					} else {
+						this.visibleEntries.delete(entry.target.id);
+					}
+				});
+				
+				if (this.isClickScrolling) return;
+
+				if (this.visibleEntries.size > 0) {
+					const firstVisible = this.headings.find(h => this.visibleEntries.has(h.id));
+					if (firstVisible) {
+						this.active = firstVisible.id;
+						console.log('[WidgetTOC] Set active to:', this.active);
+					}
+				}
+			}, { rootMargin: '-100px 0px -30% 0px' });
+			this.headings.forEach((h) => { const el = document.getElementById(h.id); if (el) observer.observe(el); });
+		},
+		scrollToId(id) {
+			console.log('[WidgetTOC] Clicked link for id:', id);
+			this.active = id;
+			this.isClickScrolling = true;
+			clearTimeout(this.clickScrollTimeout);
+			this.clickScrollTimeout = setTimeout(() => {
+				this.isClickScrolling = false;
+			}, 1000);
+			const el = document.getElementById(id);
+			if (el) {
+				console.log('[WidgetTOC] Element found. Bounding top:', el.getBoundingClientRect().top);
+			} else {
+				console.warn('[WidgetTOC] Element NOT found for id:', id);
+			}
+			window.location.hash = id;
+		}
+	}" x-show="headings.length > 0" x-cloak>
+	<h3 class="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+		<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--primary)]"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+		{t('toc.title')}
+	</h3>
+	<nav class="space-y-1">
+		<template x-for="h in headings" :key="h.id">
+			<a
+				x-text="h.text"
+				@click.prevent="scrollToId(h.id)"
+				x-bind:class="{
+					'text-[var(--primary)] font-medium': active === h.id,
+					'text-[var(--text-muted)] hover:text-[var(--text-main)]': active !== h.id,
+					'pl-4 text-sm': h.level === 'h3',
+					'text-sm': h.level === 'h2',
+				}"
+				class="block truncate no-underline transition-colors cursor-pointer"
+			></a>
+		</template>
+	</nav>
+</div>

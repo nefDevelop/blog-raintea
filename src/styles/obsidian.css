@@ -1,0 +1,694 @@
+/* ═══════════════════════════════════════════════
+   Obsidian-inspired styles ported from snippets
+   ═══════════════════════════════════════════════ */
+
+/* ─── CALLUTOS AVANZADOS ───────────────────────── */
+
+/* Quote callout */
+.callout[data-callout='quote'] {
+	--callout-color: var(--rc-color-default, #888);
+	border: 2px solid var(--border);
+	font-style: italic;
+}
+.callout[data-callout='quote'] .callout-content {
+	padding: 0;
+}
+.callout[data-callout='quote'] .callout-title {
+	text-align: right;
+	padding-top: 0.5em;
+	display: block;
+}
+.callout[data-callout='quote'] .callout-title-inner::before {
+	content: '~ ';
+}
+
+/* Definition callout */
+.callout[data-callout='defini'] {
+	border: 2px dotted var(--border) !important;
+}
+.callout[data-callout='defini'] > .callout-content {
+	padding: 0 1em 0.5em 1.5em;
+}
+
+/* Pill callout — title floats over the border */
+.callout[data-callout='pill'] {
+	overflow: visible;
+	background: transparent;
+}
+.callout[data-callout='pill'] .callout-title {
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	background: var(--card-bg);
+	margin-top: -1.2em;
+	z-index: 2;
+	width: fit-content;
+	padding: 0.1em 1.2em;
+	margin-left: 0.5em;
+	font-size: 0.8em;
+	letter-spacing: 0.05em;
+}
+
+/* Infobox2 — sidebar info card */
+.callout[data-callout='infobox2'] {
+	--callout-padding: 3px;
+	--callout-content-padding: 3px;
+	background: var(--card-bg);
+	border: 0;
+	box-shadow: none;
+	border-radius: 0.5rem;
+}
+.callout[data-callout='infobox2'] .callout-content {
+	border: 1px solid var(--border-light);
+	border-radius: 0.5rem;
+}
+.callout[data-callout='infobox2'] .callout-title {
+	justify-content: center;
+}
+.callout[data-callout='infobox2'] table {
+	width: 100%;
+}
+
+/* Clean callout — no border, no background */
+.callout[data-callout='clean'],
+.callout[data-callout='clean'] > .callout-content {
+	border: 0;
+	box-shadow: none;
+	background: transparent;
+	padding: 0;
+}
+
+/* Collapsible Callouts (Obsidian details/summary support) */
+details.callout summary.callout-title {
+	cursor: pointer;
+	list-style: none;
+	user-select: none;
+}
+details.callout summary.callout-title:focus:not(:focus-visible) {
+	outline: none;
+}
+details.callout summary.callout-title::-webkit-details-marker {
+	display: none;
+}
+.callout-fold {
+	transition: transform 0.2s ease;
+}
+details.callout[open] .callout-fold {
+	transform: rotate(90deg);
+}
+
+/* ─── CALLOUT METADATA ──────────────────────────── */
+
+/* Hide title */
+.callout[data-callout-metadata~='no-t'] > .callout-title,
+.callout[data-callout-metadata~='no-title'] > .callout-title {
+	display: none;
+}
+
+/* Hide icon */
+.callout[data-callout-metadata~='no-i'] > .callout-title .callout-icon,
+.callout[data-callout-metadata~='no-icon'] > .callout-title .callout-icon {
+	display: none;
+}
+
+/* No border */
+.callout[data-callout-metadata~='nbrd'],
+.callout[data-callout-metadata~='no-border'] {
+	border: 0;
+}
+
+/* Clean — transparent background, no shadow */
+.callout[data-callout-metadata~='clean'] {
+	background: transparent;
+	box-shadow: none;
+	border: 0;
+}
+.callout[data-callout-metadata~='clean'] .callout-content {
+	padding: 0;
+}
+
+/* Colors */
+.callout[data-callout-metadata~='bg-blue'] {
+	background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+.callout[data-callout-metadata~='bg-green'] {
+	background: color-mix(in srgb, var(--tertiary) 10%, transparent);
+}
+.callout[data-callout-metadata~='bg-orange'] {
+	background: color-mix(in srgb, #ff7800 10%, transparent);
+}
+.callout[data-callout-metadata~='bg-red'] {
+	background: color-mix(in srgb, #e74c3c 10%, transparent);
+}
+.callout[data-callout-metadata~='bg-purple'] {
+	background: color-mix(in srgb, #9b59b6 10%, transparent);
+}
+.callout[data-callout-metadata~='bg-gray'] {
+	background: color-mix(in srgb, var(--text-muted) 10%, transparent);
+}
+.callout[data-callout-metadata~='bg-yellow'] {
+	background: color-mix(in srgb, #f1c40f 10%, transparent);
+}
+
+/* Widths */
+.callout[data-callout-metadata~='wmicro'] {
+	width: 10%;
+}
+.callout[data-callout-metadata~='wtiny'] {
+	width: 20%;
+}
+.callout[data-callout-metadata~='wsmall'] {
+	width: 30%;
+}
+.callout[data-callout-metadata~='wmed'] {
+	width: 60%;
+}
+.callout[data-callout-metadata~='wtall'] {
+	width: 95%;
+}
+.callout[data-callout-metadata~='wfull'] {
+	width: 100%;
+}
+
+/* ─── MULTI-COLUMN ──────────────────────────────── */
+.callout[data-callout~='multi-column'] > .callout-content {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1em;
+}
+.callout[data-callout~='multi-column'] > .callout-content > * {
+	flex: 1;
+	min-width: 200px;
+}
+
+/* ─── IMAGE GALLERY ─────────────────────────────── */
+.prose .image-gallery {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5em;
+	margin: 1.25em 0;
+}
+.prose .image-gallery img {
+	flex: 1;
+	min-width: 150px;
+	object-fit: cover;
+	border-radius: 0.5rem;
+	cursor: zoom-in;
+	transition: transform 0.2s;
+}
+.prose .image-gallery img:hover {
+	transform: scale(1.02);
+}
+
+/* Image float */
+.prose img[alt*='left'] {
+	float: left;
+	margin: 0.5em 1em 0.5em 0;
+	max-width: 50%;
+}
+.prose img[alt*='right'] {
+	float: right;
+	margin: 0.5em 0 0.5em 1em;
+	max-width: 50%;
+}
+
+/* CSS-only zoom (click to expand) */
+.prose img[data-zoom] {
+	cursor: zoom-in;
+	transition: transform 0.2s;
+}
+.prose img[data-zoom]:active {
+	transform: scale(2);
+	position: relative;
+	z-index: 100;
+	cursor: zoom-out;
+}
+
+/* Aspect ratio images */
+.prose img[alt*='1-1'] {
+	aspect-ratio: 1/1;
+	object-fit: cover;
+}
+.prose img[alt*='4-3'] {
+	aspect-ratio: 4/3;
+	object-fit: cover;
+}
+.prose img[alt*='16-9'] {
+	aspect-ratio: 16/9;
+	object-fit: cover;
+}
+
+/* Image figure with caption */
+.prose .image-figure {
+	margin: 1.25em 0;
+	text-align: center;
+}
+.prose .image-figure img {
+	margin: 0;
+	border-radius: 0.5rem;
+}
+.prose .image-figure figcaption {
+	margin-top: 0.5em;
+	font-size: 0.85em;
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+/* ─── IMAGE UTILITIES ───────────────────────────── */
+.prose .img-circle {
+	border-radius: 50% !important;
+}
+.prose .img-square {
+	border-radius: 0 !important;
+	aspect-ratio: 1/1;
+	object-fit: cover;
+}
+.prose .img-border {
+	border: 2px solid var(--border);
+	padding: 0.25em;
+}
+.prose .img-cover {
+	width: 100%;
+	height: 200px;
+	object-fit: cover;
+	border-radius: 0.5rem;
+}
+.prose .img-banner {
+	width: 100%;
+	height: 300px;
+	object-fit: cover;
+	border-radius: 0.5rem;
+}
+.prose .img-profile {
+	width: 80px;
+	height: 80px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+.prose .img-center {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* ─── TABLES ────────────────────────────────────── */
+.prose table.table-academia {
+	border-top: 2px solid var(--text-main);
+	border-bottom: 2px solid var(--text-main);
+}
+.prose table.table-academia th {
+	border-bottom: 1px solid var(--text-main);
+}
+.prose table.table-academia td {
+	border: none;
+}
+.prose table.table-academia tr:nth-child(even) {
+	background: color-mix(in srgb, var(--text-main) 3%, transparent);
+}
+
+.prose table.table-rounded {
+	border-collapse: separate;
+	border-spacing: 0;
+	border-radius: 0.5rem;
+	overflow: hidden;
+	border: 1px solid var(--border-light);
+}
+.prose table.table-rounded th:first-child {
+	border-radius: 0.5rem 0 0 0;
+}
+.prose table.table-rounded th:last-child {
+	border-radius: 0 0.5rem 0 0;
+}
+
+.prose table.table-gpt thead {
+	background: var(--primary);
+	color: white;
+}
+.prose table.table-gpt th {
+	color: white;
+	border: none;
+}
+.prose table.table-gpt td {
+	border: 1px solid var(--border-light);
+}
+
+/* ─── TAGS ───────────────────────────────────────── */
+.prose .tag,
+.prose a[href*='/tags/'] {
+	display: inline-block;
+	font-size: 0.75em;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding: 0.15em 0.6em;
+	border-radius: 999px;
+	color: var(--primary);
+	background: color-mix(in srgb, var(--primary) 12%, transparent);
+	text-decoration: none;
+	transition: background 0.15s;
+}
+.prose .tag:hover,
+a[href*='/tags/']:hover {
+	background: color-mix(in srgb, var(--primary) 25%, transparent);
+}
+
+/* ─── PROGRESS BARS ─────────────────────────────── */
+.progress-bar {
+	width: 100%;
+	height: 16px;
+	border-radius: 16px;
+	background: var(--border-light);
+	overflow: hidden;
+	margin: 0.5em 0;
+}
+.progress-bar-fill {
+	height: 100%;
+	border-radius: 16px;
+	background: var(--primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: width 0.3s;
+}
+.progress-bar-text {
+	font-size: 0.7em;
+	font-weight: 700;
+	color: white;
+}
+
+/* ─── CUSTOM CHECKBOXES ─────────────────────────── */
+.prose ul.task-list {
+	list-style: none;
+	padding-left: 0;
+}
+.prose .task-list-item {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5em;
+	margin: 0.4em 0;
+}
+.prose .task-list-item input[type='checkbox'] {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 1.1em;
+	height: 1.1em;
+	border: 2px solid var(--border);
+	border-radius: 0.25em;
+	margin: 0;
+	cursor: pointer;
+	accent-color: var(--primary);
+	flex-shrink: 0;
+	position: relative;
+	transition: background 0.15s, border-color 0.15s;
+}
+.prose .task-list-item input[type='checkbox']:checked {
+	background: var(--primary);
+	border-color: var(--primary);
+}
+.prose .task-list-item input[type='checkbox']:checked::after {
+	content: '✓';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: white;
+	font-size: 0.7em;
+	font-weight: 700;
+}
+
+/* Custom task states */
+.prose .task-list-item[data-task='!'] input[type='checkbox'] {
+	border-color: #e74c3c;
+}
+.prose .task-list-item[data-task='!'] input[type='checkbox']:checked {
+	background: #e74c3c;
+	border-color: #e74c3c;
+}
+.prose .task-list-item[data-task='?'] input[type='checkbox'] {
+	border-color: #f39c12;
+}
+.prose .task-list-item[data-task='?'] input[type='checkbox']:checked {
+	background: #f39c12;
+	border-color: #f39c12;
+}
+.prose .task-list-item[data-task='/'] input[type='checkbox'] {
+	border-color: #3498db;
+}
+.prose .task-list-item[data-task='/'] input[type='checkbox']:checked {
+	background: #3498db;
+	border-color: #3498db;
+}
+.prose .task-list-item[data-task='i'] input[type='checkbox'] {
+	border-color: #9b59b6;
+}
+.prose .task-list-item[data-task='i'] input[type='checkbox']:checked {
+	background: #9b59b6;
+	border-color: #9b59b6;
+}
+.prose .task-list-item[data-task='-'] input[type='checkbox'] {
+	border-color: var(--text-muted);
+	opacity: 0.5;
+}
+.prose .task-list-item[data-task='>'] input[type='checkbox'] {
+	border-color: #1abc9c;
+}
+.prose .task-list-item[data-task='>'] input[type='checkbox']:checked {
+	background: #1abc9c;
+	border-color: #1abc9c;
+}
+
+/* ─── HIGHLIGHT (==text==) ───────────────────────── */
+.prose mark {
+	background: color-mix(in srgb, #f1c40f 40%, transparent);
+	color: var(--text-main);
+	padding: 0.1em 0.3em;
+	border-radius: 0.2em;
+	box-decoration-break: clone;
+}
+
+/* ─── BLOCKQUOTE REFINED ─────────────────────────── */
+.prose blockquote {
+	position: relative;
+	margin: 1.5em 0;
+	padding: 0.5em 0 0.5em 1.5em;
+	border-left: 3px solid var(--primary);
+	color: var(--text-muted);
+	font-style: italic;
+}
+.prose blockquote::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 0;
+}
+
+/* ─── CARDS GRID ─────────────────────────────────── */
+.card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 1.25em;
+	margin: 1.5em 0;
+}
+.card-grid .card {
+	border: 1px solid var(--border-light);
+	border-radius: 0.75rem;
+	background: var(--card-bg);
+	overflow: hidden;
+	transition: transform 0.2s, box-shadow 0.2s;
+}
+.card-grid .card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.card-grid .card-image {
+	width: 100%;
+	height: 160px;
+	object-fit: cover;
+}
+.card-grid .card-body {
+	padding: 1em;
+}
+.card-grid .card-title {
+	font-size: 1.1em;
+	font-weight: 600;
+	margin: 0 0 0.4em;
+}
+.card-grid .card-text {
+	font-size: 0.9em;
+	color: var(--text-muted);
+	margin: 0;
+}
+
+/* ─── BANNER / HERO ──────────────────────────────── */
+.page-banner {
+	position: relative;
+	width: 100%;
+	height: 250px;
+	overflow: hidden;
+	border-radius: 0.75rem;
+	margin-bottom: 1.5em;
+}
+.page-banner img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+.page-banner-icon {
+	position: absolute;
+	bottom: -2em;
+	left: 1.5em;
+	width: 5em;
+	height: 5em;
+	border-radius: 50%;
+	border: 3px solid var(--card-bg);
+	background: var(--card-bg);
+	object-fit: cover;
+	z-index: 2;
+}
+.page-banner-icon.square {
+	border-radius: 0.75rem;
+}
+
+/* ─── DARK MODE ADJUSTMENTS ─────────────────────── */
+.dark .callout[data-callout='pill'] .callout-title {
+	background: var(--dark-card-bg, var(--card-bg));
+}
+.dark .prose mark {
+	background: color-mix(in srgb, #f1c40f 25%, transparent);
+}
+
+/* ─── READABLE LINE WIDTH ─────────────────────────── */
+.prose-readable {
+	max-width: 65ch;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* ─── LIST MATH JUSTIFY ───────────────────────────── */
+.prose ul.justify li,
+.prose ol.justify li {
+	text-align: justify;
+}
+
+/* ─── DASHBOARD / INDEX LAYOUT ─────────────────────── */
+.dashboard {
+	padding: 0 1em;
+}
+.dashboard > ul {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2em;
+	padding: 0;
+}
+.dashboard > ul > li {
+	min-width: 200px;
+	flex: 1;
+}
+
+/* ─── CALLOUT TIMELINE ─────────────────────────────── */
+.callout[data-callout='timeline'] {
+	background: transparent !important;
+	border: none !important;
+}
+.callout[data-callout='timeline'] .callout-title {
+	background: color-mix(in srgb, var(--primary) 15%, transparent);
+	align-items: center;
+}
+.callout[data-callout='timeline'] .callout-content {
+	background: color-mix(in srgb, var(--primary) 5%, transparent);
+}
+.callout[data-callout='timeline'][data-callout-metadata~='t-l'] {
+	border-right: 3px solid var(--primary);
+	margin-right: 45%;
+}
+.callout[data-callout='timeline'][data-callout-metadata~='t-r'] {
+	border-left: 3px solid var(--primary);
+	margin-left: 45%;
+}
+
+/* ─── TASK LISTS COMPACT ───────────────────────────── */
+.prose .tasks-compact .task-list-item {
+	margin: 0.15em 0;
+}
+.prose .tasks-compact .task-list-item .task-list-item-checkbox {
+	margin-left: 0;
+}
+
+/* ─── WIDE TABLE ────────────────────────────────────── */
+.prose .wide-table table {
+	width: 100%;
+	max-width: 100%;
+}
+
+/* ─── NARROW PAGE ───────────────────────────────────── */
+.prose-narrow {
+	max-width: 45ch;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* ─── EMBED ADJUSTMENTS ─────────────────────────────── */
+.prose .internal-embed {
+	border-left: 2px solid var(--border-light);
+	padding-left: 1em;
+	margin: 1em 0;
+	background: var(--card-bg);
+	border-radius: 0 0.5rem 0.5rem 0;
+}
+.prose .internal-embed .embed-title {
+	font-size: 0.85em;
+	font-weight: 600;
+	color: var(--text-muted);
+	margin-bottom: 0.5em;
+}
+
+/* ─── SEPARATOR CUSTOM ──────────────────────────────── */
+.prose hr.section-break {
+	margin: 3em 0;
+	border: 0;
+	text-align: center;
+}
+.prose hr.section-break::after {
+	content: '· · ·';
+	color: var(--text-muted);
+	font-size: 1.5em;
+	letter-spacing: 0.5em;
+}
+
+/* ─── PDF EMBED ─────────────────────────────────────── */
+.prose .pdf-embed {
+	width: 100%;
+	height: 500px;
+	border: 1px solid var(--border-light);
+	border-radius: 0.5rem;
+	margin: 1em 0;
+}
+
+/* ─── DAILY NOTE STYLES ─────────────────────────────── */
+.prose .dailynote h2 {
+	text-transform: uppercase;
+	color: var(--primary);
+	margin-top: 1.5em;
+}
+.prose .dailynote blockquote {
+	border-left-color: var(--primary);
+}
+
+/* ─── DASHBOARD V2 ──────────────────────────────────── */
+.prose .dashboard-v2 ul {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1em;
+	padding: 0;
+}
+.prose .dashboard-v2 ul li {
+	background: var(--card-bg);
+	border: 1px solid var(--border-light);
+	border-radius: 0.5rem;
+	padding: 1em;
+	min-width: 200px;
+	flex: 1;
+}

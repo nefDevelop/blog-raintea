@@ -1,0 +1,18 @@
+---
+// ReadingProgress.astro - A lightweight scroll progress bar
+---
+<div
+	x-data="{ progress: 0 }"
+	x-init="if (document.documentElement.scrollHeight <= document.documentElement.clientHeight) $el.style.display = 'none'"
+	@scroll.window="
+		const winScroll = window.pageYOffset || document.documentElement.scrollTop;
+		const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+		progress = height > 0 ? (winScroll / height) * 100 : 0;
+	"
+	class="fixed top-0 left-0 z-[100] h-[3px] bg-[var(--primary)] transition-all duration-75 ease-out"
+	:style="`width: ${progress}%`"
+	role="progressbar"
+	aria-valuemin="0"
+	aria-valuemax="100"
+	:aria-valuenow="Math.round(progress)"
+></div>

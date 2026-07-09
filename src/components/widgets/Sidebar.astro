@@ -1,0 +1,26 @@
+---
+import WidgetToc from './WidgetToc.astro';
+import WidgetTags from './WidgetTags.astro';
+import WidgetDocsTags from './WidgetDocsTags.astro';
+import WidgetAuthor from './WidgetAuthor.astro';
+import WidgetCategories from './WidgetCategories.astro';
+import WidgetCalendar from './WidgetCalendar.astro';
+
+interface Props {
+	widgets?: readonly string[];
+	authorSlug?: string;
+	seriesName?: string;
+	currentSlug?: string;
+}
+
+const { widgets = [], authorSlug, seriesName, currentSlug } = Astro.props;
+---
+
+<div class="space-y-6">
+	{widgets.includes('toc') && <div class="hidden lg:block"><WidgetToc /></div>}
+	{widgets.includes('tags') && <WidgetTags />}
+	{widgets.includes('doc-tags') && <WidgetDocsTags />}
+	{widgets.includes('author') && authorSlug && <WidgetAuthor authorSlug={authorSlug} />}
+	{widgets.includes('categories') && <WidgetCategories />}
+	{widgets.includes('calendar') && <WidgetCalendar />}
+</div>
