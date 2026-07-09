@@ -1,5 +1,6 @@
 ---
 cms_sync: true
+cms_sha: 34e22173b4491b2c26dbd505fc69d76a29284749
 ---
 # Guía de Instalación y Configuración para Fedora 44
 
