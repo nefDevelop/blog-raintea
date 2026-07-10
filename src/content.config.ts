@@ -66,12 +66,11 @@ const series = defineCollection({
 });
 
 const pages = defineCollection({
-	loader: glob({ base: './src/content/pages', pattern: '**/*.{yaml,yml,json}' }),
+	loader: glob({ base: './src/content/pages', pattern: '**/*.{md,mdx,yaml,yml,json}' }),
 	schema: z.object({
 		title: z.string().optional(),
 		description: z.string().optional(),
 		stack: z.array(z.string()).default([]),
-		body: z.string().optional(),
 	}),
 });
 
