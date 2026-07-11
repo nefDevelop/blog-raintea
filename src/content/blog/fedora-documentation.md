@@ -1,5 +1,5 @@
 ---
-cms_sha: 58be97401b1424bfcec4d4e7182d99d264dd752b
+cms_sha: 980150d36e9dc4076d0ff36a32803bd3b1ed83c7
 cms_collection: blog
 title: Guía de Instalación y Configuración para Fedora 44
 cms_sync: true
@@ -8,6 +8,7 @@ author:
 categories: []
 tags:
   - Linux
+  - Fedora
 description: Guia de instalación de Fedora que uso cada vez que debo formatear.
 published: 2026-07-10
 ---
