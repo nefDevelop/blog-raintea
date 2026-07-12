@@ -1,5 +1,5 @@
 ---
-cms_sha: dbd0b83290f1451982c2a675bd0cbd0b88cd024c
+cms_sha: 609f3255e58ae0e5c2aede4c83850467b31b4992
 cms_collection: blog
 title: Guía de Instalación y Configuración para Fedora 44
 cms_sync: true
