@@ -12,7 +12,8 @@ tags:
 description: Guia de instalación de Fedora que uso cada vez que debo formatear.
 published: 2026-07-10
 ---
-tug# Guía de Instalación y Configuración para Fedora 44
+
+# Guía de Instalación y Configuración para Fedora 44
 
 ## 1. Configuración Inicial del Sistema
 
