@@ -24,6 +24,15 @@ const blog = defineCollection({
 				github: z.string().url().optional(),
 			})
 			.optional(),
+		downloads: z
+			.array(
+				z.object({
+					id: z.string(),
+					label: z.string(),
+					url: z.string().url(),
+				}),
+			)
+			.default([]),
 	}),
 });
 

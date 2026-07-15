@@ -1,0 +1,27 @@
+---
+import DownloadItem from './DownloadItem.astro';
+
+interface Props {
+	files: Array<{ label: string; url: string }>;
+	title?: string;
+}
+const { files, title } = Astro.props;
+---
+
+<div class="my-6 rounded-xl border border-[var(--border-light)] bg-[var(--primary-10)] p-5">
+	{title && (
+		<div class="mb-4 flex items-center gap-2 text-sm font-bold text-[var(--text-main)]">
+			<svg class="size-4 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+				<polyline points="7 10 12 15 17 10" />
+				<line x1="12" y1="15" x2="12" y2="3" />
+			</svg>
+			{title}
+		</div>
+	)}
+	<div class="space-y-3">
+		{files.map((file) => (
+			<DownloadItem label={file.label} url={file.url} />
+		))}
+	</div>
+</div>
