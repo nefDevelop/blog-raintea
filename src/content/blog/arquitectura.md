@@ -6,6 +6,8 @@ published: 2026-07-25
 description: Probando
 draft: false
 order: 3
+cms_sha: 9dcf8c5e795c279ba809e066006baf40063c6b48
+cms_content_hash: jigcfo
 ---
 ## Arquitectura de la Aplicación
 
@@ -15,7 +17,7 @@ order: 3
   - **Requisitos**: Provider/Riverpod o similar para gestión de estado
   - **Implementación**: Estructura de ViewModels, Repositories y Services
   - **Pruebas**: Verificación de la separación de responsabilidades
-  - [ ] Definición de modelos de dominio
+- [ ] Definición de modelos de dominio
   - [ ] Implementación de ViewModels reactivos
   - [ ] Repositorios para acceso a datos
 
