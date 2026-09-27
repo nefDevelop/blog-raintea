@@ -1,18 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
+import { groupByDate } from '../../utils/date-grouping';
 
 const posts = await getCollection('blog');
-const postsByDate: Record<string, string> = {};
-
-for (const post of posts) {
-	if (post.data.draft) continue;
-	// Local date format YYYY-MM-DD
-	const dateStr = post.data.published.toISOString().split('T')[0];
-	// Keep the first post of the day for the link
-	if (!postsByDate[dateStr]) {
-		postsByDate[dateStr] = `/blog/${post.id}/`;
-	}
-}
+const postsByDate = groupByDate(posts);
 ---
 
 <h3 class="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">

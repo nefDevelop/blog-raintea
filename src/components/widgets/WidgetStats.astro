@@ -1,11 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
+import { computeStats } from '../../utils/stats-utils';
 
-const posts = (await getCollection('blog')).filter((p) => !p.data.draft);
-const docs = await getCollection('docs');
-const tags = [...new Set(posts.flatMap((p) => p.data.tags || []))].length;
-const categories = [...new Set(posts.flatMap((p) => p.data.categories || []))].length;
-const sections = [...new Set(docs.map((d) => d.data.section).filter(Boolean))].length;
+const allPosts = await getCollection('blog');
+const allDocs = await getCollection('docs');
+const stats = computeStats(allPosts, allDocs);
 ---
 
 <h3 class="mb-3 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">
@@ -14,19 +13,19 @@ const sections = [...new Set(docs.map((d) => d.data.section).filter(Boolean))].l
 </h3>
 <div class="grid grid-cols-2 gap-2">
 	<div class="rounded-md border border-[var(--border-light)] p-2 text-center transition-colors hover:bg-[var(--border-light)] hover:border-transparent">
-		<div class="text-sm font-bold text-[var(--primary)]">{posts.length}</div>
+		<div class="text-sm font-bold text-[var(--primary)]">{stats.posts}</div>
 		<div class="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">posts</div>
 	</div>
 	<div class="rounded-md border border-[var(--border-light)] p-2 text-center transition-colors hover:bg-[var(--border-light)] hover:border-transparent">
-		<div class="text-sm font-bold text-[var(--primary)]">{docs.length}</div>
+		<div class="text-sm font-bold text-[var(--primary)]">{stats.docs}</div>
 		<div class="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">docs</div>
 	</div>
 	<div class="rounded-md border border-[var(--border-light)] p-2 text-center transition-colors hover:bg-[var(--border-light)] hover:border-transparent">
-		<div class="text-sm font-bold text-[var(--primary)]">{tags}</div>
+		<div class="text-sm font-bold text-[var(--primary)]">{stats.tags}</div>
 		<div class="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">tags</div>
 	</div>
 	<div class="rounded-md border border-[var(--border-light)] p-2 text-center transition-colors hover:bg-[var(--border-light)] hover:border-transparent">
-		<div class="text-sm font-bold text-[var(--primary)]">{sections}</div>
-		<div class="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">{sections === 1 ? 'section' : 'sections'}</div>
+		<div class="text-sm font-bold text-[var(--primary)]">{stats.sections}</div>
+		<div class="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">{stats.sections === 1 ? 'section' : 'sections'}</div>
 	</div>
 </div>

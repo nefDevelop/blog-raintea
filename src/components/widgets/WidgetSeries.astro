@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import FormattedDate from '../FormattedDate.astro';
+import { resolveChapters } from '../../utils/series-utils';
 
 interface Props {
 	seriesName?: string;
@@ -13,13 +14,7 @@ const allSeries = seriesName ? await getCollection('series') : [];
 const seriesData = allSeries.find((s) => s.id === seriesName);
 const allPosts = await getCollection('blog');
 
-const chapters = seriesData
-	? seriesData.data.chapters
-		.map((slug) => allPosts.find((p) => p.id === slug))
-		.filter(Boolean)
-	: [];
-
-const currentIndex = chapters.findIndex((p) => p!.id === currentSlug);
+const chapters = resolveChapters(seriesData, allPosts, currentSlug);
 ---
 
 {chapters.length > 0 && (
@@ -29,41 +24,34 @@ const currentIndex = chapters.findIndex((p) => p!.id === currentSlug);
 			<a href={`/series/${seriesName}/`} class="text-[var(--text-muted)] no-underline hover:text-[var(--primary)] transition-colors">{seriesData?.data.title || seriesName}</a>
 		</h3>
 		<div class="mb-2 flex gap-1">
-			{chapters.map((_, i) => (
+			{chapters.map((ch) => (
 				<div class={`h-1 flex-1 rounded-full ${
-					i < currentIndex ? 'bg-[var(--primary)]' :
-					i === currentIndex ? 'bg-[var(--primary)]' :
+					ch.isCompleted || ch.isCurrent ? 'bg-[var(--primary)]' :
 					'bg-[var(--border-light)]'
 				}`} />
 			))}
 		</div>
 		<div class="space-y-0.5">
-			{chapters.map((p, i) => {
-				const isCurrent = p!.id === currentSlug;
-				const isCompleted = i < currentIndex;
-				return (
-					<a
-						href={`/blog/${p!.id}/`}
-						class={`flex items-center gap-2 rounded-md px-2 py-1 text-sm no-underline transition-colors ${
-							isCurrent
-								? 'bg-[var(--primary-90)] text-[var(--primary)] font-medium'
-								: 'text-[var(--text-muted)] hover:bg-[var(--border-light)] hover:text-[var(--text-main)]'
-						}`}
-						{...(isCurrent ? { 'aria-current': 'page' } : {})}
-					>
-						<span class={`flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] ${
-							isCompleted
-								? 'bg-[var(--primary)] text-white'
-								: isCurrent
-									? 'bg-[var(--primary)] text-white'
-									: 'bg-[var(--tertiary-90)] text-[var(--tertiary-10)]'
-						}`}>
-							{isCompleted ? '✓' : i + 1}
-						</span>
-						<span class="truncate">{p!.data.title}</span>
-					</a>
-				);
-			})}
+			{chapters.map((ch) => (
+				<a
+					href={`/blog/${ch.post.id}/`}
+					class={`flex items-center gap-2 rounded-md px-2 py-1 text-sm no-underline transition-colors ${
+						ch.isCurrent
+							? 'bg-[var(--primary-90)] text-[var(--primary)] font-medium'
+							: 'text-[var(--text-muted)] hover:bg-[var(--border-light)] hover:text-[var(--text-main)]'
+					}`}
+					{...(ch.isCurrent ? { 'aria-current': 'page' } : {})}
+				>
+					<span class={`flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] ${
+						ch.isCompleted || ch.isCurrent
+							? 'bg-[var(--primary)] text-white'
+							: 'bg-[var(--tertiary-90)] text-[var(--tertiary-10)]'
+					}`}>
+						{ch.isCompleted ? '✓' : ch.index + 1}
+					</span>
+					<span class="truncate">{ch.post.data.title}</span>
+				</a>
+			))}
 		</div>
 	</div>
 )}
